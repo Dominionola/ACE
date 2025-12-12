@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${newsreader.variable} antialiased font-sans bg-cream-50 text-ace-blue selection:bg-ace-blue selection:text-white overflow-x-hidden`}
+        className={`${inter.variable} ${newsreader.variable} antialiased font-serif bg-cream-50 text-ace-blue selection:bg-ace-blue selection:text-white overflow-x-hidden`}
       >
         <Header />
         {children}
