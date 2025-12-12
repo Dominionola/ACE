@@ -1,9 +1,12 @@
-"use client";
-
-import React, { useState } from 'react';
+import React from 'react';
 import { Logo } from './Logo';
 import { Menu, X } from 'lucide-react';
 import { NavItem } from '../types';
+
+interface HeaderProps {
+  isMenuOpen: boolean;
+  setIsMenuOpen: (isOpen: boolean) => void;
+}
 
 const navItems: NavItem[] = [
   { label: 'Features', href: '#features' },
@@ -11,9 +14,7 @@ const navItems: NavItem[] = [
   { label: 'Pricing', href: '#pricing' },
 ];
 
-export const Header: React.FC = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+export const Header: React.FC<HeaderProps> = ({ isMenuOpen, setIsMenuOpen }) => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-cream-50/80 backdrop-blur-md border-b border-ace-blue/5">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -52,7 +53,7 @@ export const Header: React.FC = () => {
 
       {/* Mobile Nav Dropdown */}
       {isMenuOpen && (
-        <div className="md:hidden absolute top-20 left-0 right-0 bg-cream-50 border-b border-ace-blue/10 p-6 animate-fade-in-up shadow-lg">
+        <div className="md:hidden absolute top-20 left-0 right-0 bg-cream-50 border-b border-ace-blue/10 p-6 animate-fade-in-up">
           <nav className="flex flex-col gap-6">
              {navItems.map((item) => (
               <a 
