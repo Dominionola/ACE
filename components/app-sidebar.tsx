@@ -1,0 +1,153 @@
+"use client"
+
+import * as React from "react"
+import {
+  BookOpen,
+  Calendar,
+  MessageSquare,
+  Settings,
+  Plus,
+  Library,
+} from "lucide-react"
+
+import { NavMain } from "@/components/nav-main"
+import { NavUser } from "@/components/nav-user"
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarRail,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from "@/components/ui/sidebar"
+import { Logo } from "@/components/Logo"
+
+// ACE navigation data
+const data = {
+  user: {
+    name: "Student",
+    email: "student@university.edu",
+    avatar: "",
+  },
+  navMain: [
+    {
+      title: "My Decks",
+      url: "/dashboard/decks",
+      icon: Library,
+      isActive: true,
+      items: [
+        {
+          title: "All Decks",
+          url: "/dashboard/decks",
+        },
+        {
+          title: "Create New",
+          url: "/dashboard/decks/new",
+        },
+      ],
+    },
+    {
+      title: "Study Sessions",
+      url: "/dashboard/study",
+      icon: BookOpen,
+      items: [
+        {
+          title: "Today's Review",
+          url: "/dashboard/study/today",
+        },
+        {
+          title: "History",
+          url: "/dashboard/study/history",
+        },
+      ],
+    },
+    {
+      title: "Schedule",
+      url: "/dashboard/schedule",
+      icon: Calendar,
+      items: [
+        {
+          title: "My Schedule",
+          url: "/dashboard/schedule",
+        },
+        {
+          title: "Upcoming Exams",
+          url: "/dashboard/schedule/exams",
+        },
+      ],
+    },
+    {
+      title: "AI Tutor",
+      url: "/dashboard/chat",
+      icon: MessageSquare,
+      items: [
+        {
+          title: "New Chat",
+          url: "/dashboard/chat",
+        },
+        {
+          title: "Chat History",
+          url: "/dashboard/chat/history",
+        },
+      ],
+    },
+    {
+      title: "Settings",
+      url: "/dashboard/settings",
+      icon: Settings,
+      items: [
+        {
+          title: "Profile",
+          url: "/dashboard/settings/profile",
+        },
+        {
+          title: "Preferences",
+          url: "/dashboard/settings/preferences",
+        },
+      ],
+    },
+  ],
+}
+
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  return (
+    <Sidebar collapsible="icon" {...props}>
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <a href="/dashboard" className="flex items-center gap-2">
+                <Logo className="h-8 w-8" />
+                <span className="font-serif text-xl font-semibold">ACE</span>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+      <SidebarContent>
+        {/* Quick Action */}
+        <SidebarMenu className="px-2 py-2">
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full justify-center"
+            >
+              <a href="/dashboard/decks/new" className="flex items-center gap-2">
+                <Plus strokeWidth={1.5} className="h-4 w-4" />
+                <span>Create Deck</span>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+        <NavMain items={data.navMain} />
+      </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={data.user} />
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
+  )
+}
+
