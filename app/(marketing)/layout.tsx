@@ -14,8 +14,8 @@ export default function MarketingLayout({
             </main>
             <Footer />
 
-            {/* Decorative background gradients */}
-            <div className="fixed top-0 left-0 right-0 h-screen pointer-events-none z-0 overflow-hidden">
+            {/* Decorative background gradients - only visible in hero area */}
+            <div className="fixed top-0 left-0 right-0 h-[70vh] pointer-events-none -z-10 overflow-hidden">
                 <div
                     className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%]"
                     style={{ background: 'radial-gradient(circle, rgba(219, 234, 254, 0.4) 0%, rgba(219, 234, 254, 0) 70%)' }}
