@@ -118,9 +118,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="/dashboard" className="flex items-center gap-2">
+              <a href="/dashboard" className="flex items-center">
                 <Logo className="h-8 w-8" />
-                <span className="font-serif text-xl font-semibold">ACE</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
