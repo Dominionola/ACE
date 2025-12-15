@@ -3,7 +3,8 @@ import Link from "next/link";
 import { ArrowLeft, Plus, BookOpen, FileText, Trash2 } from "lucide-react";
 import { getDeckById } from "@/lib/actions/deck";
 import { getDocumentsForDeck } from "@/lib/actions/document";
-import { FileUpload } from "@/components/file-upload";
+import { getCurrentUser } from "@/lib/actions/auth";
+import { DeckStudyView } from "@/components/deck-study-view";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -21,6 +22,7 @@ interface DeckDetailPageProps {
 
 export default async function DeckDetailPage({ params }: DeckDetailPageProps) {
     const { id } = await params;
+    const user = await getCurrentUser();
     const deck = await getDeckById(id);
 
     if (!deck) {
@@ -82,55 +84,8 @@ export default async function DeckDetailPage({ params }: DeckDetailPageProps) {
                     </button>
                 </div>
 
-                {/* Study Materials Section */}
-                <div className="mb-10">
-                    <h2 className="font-serif text-xl text-ace-blue mb-4">Study Materials</h2>
-                    <div className="grid md:grid-cols-2 gap-6">
-                        {/* Upload Zone */}
-                        <FileUpload deckId={id} />
-
-                        {/* Documents List */}
-                        <div className="space-y-3">
-                            {documents.length === 0 ? (
-                                <div className="p-6 bg-ace-blue/5 rounded-2xl text-center">
-                                    <FileText strokeWidth={1.5} className="h-8 w-8 text-ace-blue/30 mx-auto mb-2" />
-                                    <p className="font-sans text-sm text-ace-blue/50">
-                                        No documents yet. Upload a PDF to get started.
-                                    </p>
-                                </div>
-                            ) : (
-                                documents.map((doc) => (
-                                    <div
-                                        key={doc.id}
-                                        className="flex items-center gap-3 p-4 bg-white rounded-xl border border-ace-blue/10 hover:shadow-md transition-shadow"
-                                    >
-                                        <div className="p-2 bg-red-100 rounded-lg">
-                                            <FileText strokeWidth={1.5} className="h-5 w-5 text-red-600" />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="font-sans text-sm text-ace-blue font-medium truncate">
-                                                {doc.file_name}
-                                            </p>
-                                            <p className="font-sans text-xs text-ace-blue/50">
-                                                {doc.extracted_text
-                                                    ? `${doc.extracted_text.length} characters extracted`
-                                                    : "Processing..."}
-                                            </p>
-                                        </div>
-                                        <a
-                                            href={doc.file_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="px-3 py-1 text-xs text-ace-blue hover:text-ace-light transition-colors"
-                                        >
-                                            View
-                                        </a>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    </div>
-                </div>
+                {/* Study Materials & AI Chat */}
+                <DeckStudyView deck={deck} documents={documents} userId={user?.id || ""} />
 
                 {/* Cards Section */}
                 <h2 className="font-serif text-xl text-ace-blue mb-4">Flashcards</h2>
