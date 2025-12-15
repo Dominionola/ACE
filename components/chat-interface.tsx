@@ -1,6 +1,6 @@
 "use client";
 
-import { useChat } from "ai/react";
+import { useChat } from "ai";
 import { Send, Bot, User, Loader2 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
@@ -76,8 +76,8 @@ export function ChatInterface({ documentId, documentName }: ChatInterfaceProps) 
 
                         <div
                             className={`rounded-2xl p-4 max-w-[80%] text-sm leading-relaxed ${m.role === "user"
-                                    ? "bg-ace-blue text-white rounded-tr-none"
-                                    : "bg-cream-100 text-ace-blue rounded-tl-none border border-ace-blue/5"
+                                ? "bg-ace-blue text-white rounded-tr-none"
+                                : "bg-cream-100 text-ace-blue rounded-tl-none border border-ace-blue/5"
                                 }`}
                         >
                             {m.content}
