@@ -117,7 +117,7 @@ export async function uploadDocument(
 
     if (insertError) {
         console.error("Insert error:", insertError);
-        return { success: false, error: "Failed to save document record" };
+        return { success: false, error: `Failed to save document: ${insertError.message}` };
     }
 
     revalidatePath(`/dashboard/decks/${deckId}`);

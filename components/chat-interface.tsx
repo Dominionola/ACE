@@ -109,7 +109,7 @@ export function ChatInterface({ documentId, documentName }: ChatInterfaceProps) 
                     <Button
                         type="submit"
                         size="icon"
-                        disabled={isLoading || !input.trim()}
+                        disabled={isLoading || !(input || "").trim()}
                         className="absolute right-1 top-1 h-8 w-8 rounded-full bg-ace-blue hover:bg-ace-light text-white"
                     >
                         <Send className="h-4 w-4" />

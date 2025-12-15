@@ -8,7 +8,7 @@ export const InsertDocumentSchema = z.object({
     deck_id: z.string().uuid("Invalid deck ID"),
     file_name: z.string().min(1, "File name is required"),
     file_url: z.string().url("Invalid file URL"),
-    extracted_text: z.string().optional(),
+    extracted_text: z.string().nullable().optional(),
 });
 
 export type InsertDocument = z.infer<typeof InsertDocumentSchema>;
