@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Logo } from './Logo';
 import { Menu, X } from 'lucide-react';
 import { NavItem } from '../types';
+import Link from 'next/link';
 
 const navItems: NavItem[] = [
   { label: 'Features', href: '#features' },
@@ -22,7 +23,7 @@ export const Header: React.FC = () => {
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-8">
           {navItems.map((item) => (
-            <a 
+            <a
               key={item.label}
               href={item.href}
               className="text-sm font-sans font-medium text-ace-blue/70 hover:text-ace-blue transition-colors"
@@ -33,16 +34,20 @@ export const Header: React.FC = () => {
         </nav>
 
         <div className="hidden md:flex items-center gap-4">
-          <button className="text-sm font-sans font-medium text-ace-blue hover:text-ace-blue/80 transition-colors">
-            Log in
-          </button>
-          <button className="bg-ace-blue text-cream-50 px-5 py-2.5 rounded-full text-sm font-sans font-medium hover:bg-ace-light transition-colors duration-300 shadow-sm hover:shadow-md">
-            Get Started
-          </button>
+          <Link href="/login">
+            <button className="text-sm font-sans font-medium text-ace-blue hover:text-ace-blue/80 transition-colors">
+              Log in
+            </button>
+          </Link>
+          <Link href="/signup">
+            <button className="bg-ace-blue text-cream-50 px-5 py-2.5 rounded-full text-sm font-sans font-medium hover:bg-ace-light transition-colors duration-300 shadow-sm hover:shadow-md">
+              Get Started
+            </button>
+          </Link>
         </div>
 
         {/* Mobile Menu Toggle */}
-        <button 
+        <button
           className="md:hidden text-ace-blue"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
@@ -54,8 +59,8 @@ export const Header: React.FC = () => {
       {isMenuOpen && (
         <div className="md:hidden absolute top-20 left-0 right-0 bg-cream-50 border-b border-ace-blue/10 p-6 animate-fade-in-up shadow-lg">
           <nav className="flex flex-col gap-6">
-             {navItems.map((item) => (
-              <a 
+            {navItems.map((item) => (
+              <a
                 key={item.label}
                 href={item.href}
                 className="text-lg font-serif font-medium text-ace-blue"
@@ -66,12 +71,16 @@ export const Header: React.FC = () => {
             ))}
             <hr className="border-ace-blue/10" />
             <div className="flex flex-col gap-4">
-              <button className="text-left font-sans font-medium text-ace-blue">
-                Log in
-              </button>
-              <button className="bg-ace-blue text-cream-50 px-5 py-3 rounded-full text-center font-sans font-medium">
-                Get Started
-              </button>
+              <Link href="/login" onClick={() => setIsMenuOpen(false)}>
+                <button className="w-full text-left font-sans font-medium text-ace-blue">
+                  Log in
+                </button>
+              </Link>
+              <Link href="/signup" onClick={() => setIsMenuOpen(false)}>
+                <button className="w-full bg-ace-blue text-cream-50 px-5 py-3 rounded-full text-center font-sans font-medium">
+                  Get Started
+                </button>
+              </Link>
             </div>
           </nav>
         </div>
