@@ -82,6 +82,7 @@ export async function signup(formData: FormData): Promise<AuthResult> {
             data: {
                 full_name: result.data.fullName,
             },
+            emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/auth/callback`,
         },
     });
 
