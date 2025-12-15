@@ -25,93 +25,94 @@ import {
 import { Logo } from "@/components/Logo"
 
 // ACE navigation data
-const data = {
-  user: {
-    name: "Student",
-    email: "student@university.edu",
-    avatar: "",
+const navMain = [
+  {
+    title: "My Decks",
+    url: "/dashboard/decks",
+    icon: Library,
+    isActive: true,
+    items: [
+      {
+        title: "All Decks",
+        url: "/dashboard/decks",
+      },
+      {
+        title: "Create New",
+        url: "/dashboard/decks/new",
+      },
+    ],
   },
-  navMain: [
-    {
-      title: "My Decks",
-      url: "/dashboard/decks",
-      icon: Library,
-      isActive: true,
-      items: [
-        {
-          title: "All Decks",
-          url: "/dashboard/decks",
-        },
-        {
-          title: "Create New",
-          url: "/dashboard/decks/new",
-        },
-      ],
-    },
-    {
-      title: "Study Sessions",
-      url: "/dashboard/study",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Today's Review",
-          url: "/dashboard/study/today",
-        },
-        {
-          title: "History",
-          url: "/dashboard/study/history",
-        },
-      ],
-    },
-    {
-      title: "Schedule",
-      url: "/dashboard/schedule",
-      icon: Calendar,
-      items: [
-        {
-          title: "My Schedule",
-          url: "/dashboard/schedule",
-        },
-        {
-          title: "Upcoming Exams",
-          url: "/dashboard/schedule/exams",
-        },
-      ],
-    },
-    {
-      title: "AI Tutor",
-      url: "/dashboard/chat",
-      icon: MessageSquare,
-      items: [
-        {
-          title: "New Chat",
-          url: "/dashboard/chat",
-        },
-        {
-          title: "Chat History",
-          url: "/dashboard/chat/history",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "/dashboard/settings",
-      icon: Settings,
-      items: [
-        {
-          title: "Profile",
-          url: "/dashboard/settings/profile",
-        },
-        {
-          title: "Preferences",
-          url: "/dashboard/settings/preferences",
-        },
-      ],
-    },
-  ],
+  {
+    title: "Study Sessions",
+    url: "/dashboard/study",
+    icon: BookOpen,
+    items: [
+      {
+        title: "Today's Review",
+        url: "/dashboard/study/today",
+      },
+      {
+        title: "History",
+        url: "/dashboard/study/history",
+      },
+    ],
+  },
+  {
+    title: "Schedule",
+    url: "/dashboard/schedule",
+    icon: Calendar,
+    items: [
+      {
+        title: "My Schedule",
+        url: "/dashboard/schedule",
+      },
+      {
+        title: "Upcoming Exams",
+        url: "/dashboard/schedule/exams",
+      },
+    ],
+  },
+  {
+    title: "AI Tutor",
+    url: "/dashboard/chat",
+    icon: MessageSquare,
+    items: [
+      {
+        title: "New Chat",
+        url: "/dashboard/chat",
+      },
+      {
+        title: "Chat History",
+        url: "/dashboard/chat/history",
+      },
+    ],
+  },
+  {
+    title: "Settings",
+    url: "/dashboard/settings",
+    icon: Settings,
+    items: [
+      {
+        title: "Profile",
+        url: "/dashboard/settings/profile",
+      },
+      {
+        title: "Preferences",
+        url: "/dashboard/settings/preferences",
+      },
+    ],
+  },
+]
+
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  user: {
+    name: string
+    email: string
+    avatar: string
+  }
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ user, ...props }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -140,13 +141,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        <NavMain items={data.navMain} />
+        <NavMain items={navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )
 }
+
 

@@ -1,5 +1,5 @@
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
+import { AppSidebarWrapper } from "@/components/app-sidebar-wrapper";
 
 export default function DashboardLayout({
     children,
@@ -8,10 +8,11 @@ export default function DashboardLayout({
 }) {
     return (
         <SidebarProvider>
-            <AppSidebar />
+            <AppSidebarWrapper />
             <SidebarInset className="bg-cream-50">
                 {children}
             </SidebarInset>
         </SidebarProvider>
     );
 }
+
