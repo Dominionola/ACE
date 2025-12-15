@@ -1,6 +1,6 @@
 "use client";
 
-import { useChat } from "ai";
+import { useChat } from "@ai-sdk/react";
 import { Send, Bot, User, Loader2 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
