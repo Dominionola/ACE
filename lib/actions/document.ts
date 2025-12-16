@@ -91,6 +91,7 @@ export async function uploadDocument(
         const buffer = Buffer.from(arrayBuffer);
         const pdfData = await pdfParse(buffer);
         extractedText = pdfData.text;
+        console.log("PDF parsed successfully. Pages:", pdfData.numpages, "Text length:", extractedText.length);
     } catch (parseError) {
         console.error("PDF parse error:", parseError);
         // Continue without extracted text - not a critical error
