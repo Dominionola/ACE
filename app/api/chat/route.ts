@@ -45,12 +45,13 @@ export async function POST(req: Request) {
 
         // 2. Stream response with context using Gemini
         const result = streamText({
-            model: google("gemini-1.5-flash"),
+            model: google("gemini-2.5-flash-lite"),
             messages: convertToModelMessages(messages),
             system: `You are an intelligent study companion helping a student understand their study materials.
 Answer the user's questions based ONLY on the provided context below.
 If the answer is not in the context, politely say you don't have that information in the document.
 Be concise but thorough. Format your answers with markdown when helpful.
+If asked for a summary or to verify reading, provide a concise summary (max 4 lines) of the beginning of the text to confirm access.
 
 Context from the document:
 ${documentContext}`,

@@ -79,7 +79,7 @@
    - Stream AI response to user.
 
 ### AI Study Companion (Chat)
-1. **Provider:** Google Gemini 1.5 Flash (via `@ai-sdk/google`)
+1. **Provider:** Google Gemini 2.5 Flash Lite (via `@ai-sdk/google`)
 2. **Context:** Document's `extracted_text` field
 3. **API Route:** `/api/chat`
 4. **UI Hook:** `useChat` from `@ai-sdk/react`
