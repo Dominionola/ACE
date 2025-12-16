@@ -45,7 +45,7 @@ export async function POST(req: Request) {
 
         // 2. Stream response with context using Gemini
         const result = streamText({
-            model: google("models/gemini-1.5-flash-latest"),
+            model: google("gemini-1.5-flash"),
             messages: convertToModelMessages(messages),
             system: `You are an intelligent study companion helping a student understand their study materials.
 Answer the user's questions based ONLY on the provided context below.
