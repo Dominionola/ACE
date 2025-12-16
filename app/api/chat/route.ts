@@ -1,6 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
-import { google } from "@ai-sdk/google";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { convertToModelMessages, streamText, UIMessage } from "ai";
+
+const google = createGoogleGenerativeAI({
+    apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+});
 
 export const maxDuration = 30;
 
@@ -11,6 +15,10 @@ export async function POST(req: Request) {
         if (!documentId) {
             return new Response("Document ID is required", { status: 400 });
         }
+
+        // Debug: Log API key presence (not the actual key!)
+        console.log("API Key present:", !!process.env.GOOGLE_GENERATIVE_AI_API_KEY);
+        console.log("API Key length:", process.env.GOOGLE_GENERATIVE_AI_API_KEY?.length);
 
         const supabase = await createClient();
 
@@ -37,7 +45,7 @@ export async function POST(req: Request) {
 
         // 2. Stream response with context using Gemini
         const result = streamText({
-            model: google("gemini-1.5-flash"),
+            model: google("models/gemini-1.5-flash-latest"),
             messages: convertToModelMessages(messages),
             system: `You are an intelligent study companion helping a student understand their study materials.
 Answer the user's questions based ONLY on the provided context below.
