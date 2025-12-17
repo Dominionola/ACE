@@ -28,12 +28,12 @@ We follow an **Agentic Development** approach, prioritizing:
 
 ### Phase 3: AI Study Features (🚧 In Progress)
 - [x] Intelligent Chat with PDF Context (Gemini 2.5)
-- [ ] **Quiz Generation** (Current Focus)
-  - [ ] Schema Definition
-  - [ ] AI Generation Logic
-  - [ ] Interactive Quiz Player UI
-  - [ ] Score Saving
-- [ ] Flashcard Generation (Planned)
+- [x] **Quiz Generation** (✅ Completed)
+  - [x] Schema Definition
+  - [x] AI Generation Logic
+  - [x] Interactive Quiz Player UI
+  - [x] Score Saving
+- [ ] **Flashcard Generation** (Next Focus)
 
 ### Phase 4: Analytics & Insights (📅 Planned)
 - [ ] Grade History Logging

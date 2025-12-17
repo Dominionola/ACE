@@ -154,12 +154,23 @@ export function QuizDialog({ documentId, deckId }: QuizDialogProps) {
                             </div>
                         </div>
 
-                        <DialogFooter>
+                        <DialogFooter className="gap-2 sm:gap-0">
+                            <Button
+                                variant="outline"
+                                onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
+                                disabled={currentQuestion === 0}
+                            >
+                                Previous
+                            </Button>
                             <Button
                                 onClick={handleNext}
+                                className="ml-auto"
+                                // Only require an answer to proceed if it's the last question? 
+                                // Or let them skip? User asked to change answers, implies they might want to skip back.
+                                // Let's keep it simple: can go back anytime. Can go next if answered (or maybe allow skip? Nah, let's stick to answered for now to ensure completion).
                                 disabled={userAnswers[currentQuestion] === undefined}
                             >
-                                {currentQuestion === quiz.length - 1 ? "Finish" : "Next Question"}
+                                {currentQuestion === quiz.length - 1 ? "Finish & Submit" : "Next Question"}
                             </Button>
                         </DialogFooter>
                     </>
