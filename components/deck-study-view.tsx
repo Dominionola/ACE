@@ -8,7 +8,8 @@ import { ChatInterface } from "@/components/chat-interface";
 import { FileText, MessageSquare, Trash2, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { deleteDocument } from "@/lib/actions/document";
-import { DeckCard } from "@/components/deck-card"; // Assuming cards can be passed here or handled separately
+import { DeckCard } from "@/components/deck-card";
+import { QuizDialog } from "@/components/quiz-dialog";
 
 interface DeckStudyViewProps {
     deck: any; // Ideally import Deck type
@@ -29,7 +30,7 @@ export function DeckStudyView({ deck, documents, userId }: DeckStudyViewProps) {
 
     const handleDelete = async (docId: string) => {
         if (confirm("Are you sure you want to delete this document?")) {
-            await deleteDocument(docId);
+            await deleteDocument(docId, deck.id);
         }
     };
 
@@ -49,7 +50,7 @@ export function DeckStudyView({ deck, documents, userId }: DeckStudyViewProps) {
                             <BookOpen className="h-5 w-5 opacity-60" />
                             Upload Documents
                         </h2>
-                        <FileUpload deckId={deck.id} userId={userId} />
+                        <FileUpload deckId={deck.id} />
                     </div>
 
                     {/* Documents List */}
@@ -85,13 +86,16 @@ export function DeckStudyView({ deck, documents, userId }: DeckStudyViewProps) {
                                         Extracted • {new Date().toLocaleDateString()}
                                     </p>
 
-                                    <Button
-                                        onClick={() => handleChatParams(doc.id)}
-                                        className="w-full bg-ace-blue text-white rounded-full hover:bg-ace-light gap-2"
-                                    >
-                                        <MessageSquare className="h-4 w-4" />
-                                        Chat with PDF
-                                    </Button>
+                                    <div className="flex flex-col gap-2">
+                                        <Button
+                                            onClick={() => handleChatParams(doc.id)}
+                                            className="w-full bg-ace-blue text-white rounded-full hover:bg-ace-light gap-2"
+                                        >
+                                            <MessageSquare className="h-4 w-4" />
+                                            Chat with PDF
+                                        </Button>
+                                        <QuizDialog documentId={doc.id} deckId={deck.id} />
+                                    </div>
                                 </div>
                             ))
                         )}
