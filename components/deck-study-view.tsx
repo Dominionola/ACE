@@ -8,8 +8,10 @@ import { ChatInterface } from "@/components/chat-interface";
 import { FileText, MessageSquare, Trash2, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { deleteDocument } from "@/lib/actions/document";
+import { generateFlashcards } from "@/lib/actions/card";
 import { DeckCard } from "@/components/deck-card";
 import { QuizDialog } from "@/components/quiz-dialog";
+import { Loader2, Sparkles } from "lucide-react";
 
 interface DeckStudyViewProps {
     deck: any; // Ideally import Deck type
@@ -20,6 +22,7 @@ interface DeckStudyViewProps {
 export function DeckStudyView({ deck, documents, userId }: DeckStudyViewProps) {
     const [activeTab, setActiveTab] = useState("materials");
     const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
+    const [generatingCards, setGeneratingCards] = useState<string | null>(null);
 
     const selectedDocument = documents.find((d) => d.id === selectedDocumentId);
 
@@ -95,6 +98,31 @@ export function DeckStudyView({ deck, documents, userId }: DeckStudyViewProps) {
                                             Chat with PDF
                                         </Button>
                                         <QuizDialog documentId={doc.id} deckId={deck.id} />
+
+                                        <Button
+                                            variant="outline"
+                                            className="w-full rounded-full gap-2 border-ace-blue/20 text-ace-blue hover:bg-ace-blue/5"
+                                            onClick={async () => {
+                                                if (generatingCards === doc.id) return;
+                                                setGeneratingCards(doc.id);
+                                                try {
+                                                    const res = await generateFlashcards(doc.id, deck.id);
+                                                    if (!res.success) {
+                                                        alert(res.error);
+                                                    }
+                                                } finally {
+                                                    setGeneratingCards(null);
+                                                }
+                                            }}
+                                            disabled={generatingCards === doc.id}
+                                        >
+                                            {generatingCards === doc.id ? (
+                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                            ) : (
+                                                <Sparkles className="h-4 w-4" />
+                                            )}
+                                            {generatingCards === doc.id ? "Generating..." : "Generate Cards"}
+                                        </Button>
                                     </div>
                                 </div>
                             ))

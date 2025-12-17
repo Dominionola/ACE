@@ -33,7 +33,13 @@ We follow an **Agentic Development** approach, prioritizing:
   - [x] AI Generation Logic
   - [x] Interactive Quiz Player UI
   - [x] Score Saving
-- [ ] **Flashcard Generation** (Next Focus)
+- [x] **Flashcard Generation** (✅ Completed)
+  - [x] Server Action (Gemini)
+  - [x] UI Integration
+  - [x] Verify Flashcard Generation flow
+- [x] **Smart Quiz Analysis** (✅ Completed)
+  - [x] Grounding (Question Explanations)
+  - [x] Performance Report (Weakness/Recommendations)
 
 ### Phase 4: Analytics & Insights (📅 Planned)
 - [ ] Grade History Logging

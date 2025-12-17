@@ -12,7 +12,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Brain, CheckCircle, Loader2, XCircle } from "lucide-react";
-import { generateQuiz, saveQuizResult } from "@/lib/actions/quiz";
+import { generateQuiz, saveQuizResult, analyzeQuizPerformance } from "@/lib/actions/quiz";
 import type { Quiz } from "@/lib/schemas/quiz";
 
 interface QuizDialogProps {
@@ -29,6 +29,10 @@ export function QuizDialog({ documentId, deckId }: QuizDialogProps) {
     const [score, setScore] = useState(0);
     const [error, setError] = useState("");
 
+    // Analysis State
+    const [analysis, setAnalysis] = useState<{ keyWeakness: string, recommendation: string, motivation: string } | null>(null);
+    const [analyzing, setAnalyzing] = useState(false);
+
     const handleGenerate = async () => {
         setStatus("loading");
         setError("");
@@ -40,6 +44,7 @@ export function QuizDialog({ documentId, deckId }: QuizDialogProps) {
             setCurrentQuestion(0);
             setUserAnswers([]);
             setScore(0);
+            setAnalysis(null);
         } else {
             setError(result.error || "Failed to generate quiz");
             setStatus("idle");
@@ -79,6 +84,23 @@ export function QuizDialog({ documentId, deckId }: QuizDialogProps) {
             score: calculatedScore,
             total_questions: quiz.length,
         });
+
+        // Run Smart Analysis w/ Gemini
+        setAnalyzing(true);
+        const analysisInput = {
+            questions: quiz.map((q, idx) => ({
+                question: q.question,
+                selectedOption: q.options[userAnswers[idx]],
+                correctOption: q.options[q.correctAnswer],
+                isCorrect: userAnswers[idx] === q.correctAnswer
+            }))
+        };
+
+        const analysisRes = await analyzeQuizPerformance(analysisInput);
+        if (analysisRes.success && analysisRes.report) {
+            setAnalysis(analysisRes.report);
+        }
+        setAnalyzing(false);
     };
 
     const resetQuiz = () => {
@@ -87,6 +109,7 @@ export function QuizDialog({ documentId, deckId }: QuizDialogProps) {
         setUserAnswers([]);
         setCurrentQuestion(0);
         setScore(0);
+        setAnalysis(null);
     };
 
     if (!documentId) return null;
@@ -103,7 +126,7 @@ export function QuizDialog({ documentId, deckId }: QuizDialogProps) {
                 </Button>
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
                 {status === "idle" && (
                     <>
                         <DialogHeader>
@@ -140,7 +163,7 @@ export function QuizDialog({ documentId, deckId }: QuizDialogProps) {
                                     <Button
                                         key={idx}
                                         variant={userAnswers[currentQuestion] === idx ? "default" : "outline"}
-                                        className="w-full justify-start h-auto py-3 px-4 text-left whitespace-normal"
+                                        className="w-full justify-start h-auto py-3 px-4 text-left whitespace-normal leading-normal"
                                         onClick={() => handleAnswer(idx)}
                                     >
                                         <div className="flex items-center w-full">
@@ -185,24 +208,69 @@ export function QuizDialog({ documentId, deckId }: QuizDialogProps) {
                             </DialogDescription>
                         </DialogHeader>
 
-                        <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto">
+                        {/* Score Summary */}
+                        <div className="p-4 bg-muted/30 rounded-lg text-center mb-4">
+                            <p className="text-2xl font-bold mb-1">{Math.round((score / quiz.length) * 100)}%</p>
+                            <p className="text-sm text-muted-foreground">{score >= quiz.length * 0.8 ? "Great job!" : "Keep practicing!"}</p>
+                        </div>
+
+                        {/* AI Analysis Card */}
+                        {analyzing ? (
+                            <div className="p-4 border rounded-xl bg-blue-50/50 flex items-center gap-3 animate-pulse">
+                                <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
+                                <span className="text-sm text-blue-700 font-medium">Generating Smart Analysis...</span>
+                            </div>
+                        ) : analysis ? (
+                            <div className="p-5 border border-blue-100 bg-blue-50/30 rounded-xl space-y-3 mb-6">
+                                <div className="flex items-center gap-2 text-blue-700 font-semibold">
+                                    <Brain className="h-5 w-5" />
+                                    <h3>AI Performance Report</h3>
+                                </div>
+
+                                <div className="grid gap-3 text-sm">
+                                    <div className="bg-white p-3 rounded-lg border border-blue-100">
+                                        <span className="font-semibold text-gray-700 block mb-1">Observation:</span>
+                                        {analysis.keyWeakness}
+                                    </div>
+                                    <div className="bg-white p-3 rounded-lg border border-blue-100">
+                                        <span className="font-semibold text-gray-700 block mb-1">Recommendation:</span>
+                                        {analysis.recommendation}
+                                    </div>
+                                    <div className="bg-white p-3 rounded-lg border border-blue-100 italic text-blue-600">
+                                        "{analysis.motivation}"
+                                    </div>
+                                </div>
+                            </div>
+                        ) : null}
+
+                        <div className="py-2 space-y-6">
                             {quiz.map((q, idx) => {
                                 const isCorrect = userAnswers[idx] === q.correctAnswer;
                                 return (
-                                    <div key={idx} className="border rounded-lg p-3 text-sm">
-                                        <p className="font-medium mb-2">{idx + 1}. {q.question}</p>
-                                        <div className="space-y-1">
-                                            <div className={cn("flex items-center gap-2",
-                                                userAnswers[idx] === q.correctAnswer ? "text-green-600 font-medium" : "text-red-500"
-                                            )}>
-                                                {isCorrect ? <CheckCircle className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
-                                                Your Answer: {q.options[userAnswers[idx]]}
-                                            </div>
-                                            {!isCorrect && (
-                                                <div className="text-muted-foreground ml-6">
-                                                    Correct Answer: {q.options[q.correctAnswer]}
-                                                </div>
-                                            )}
+                                    <div key={idx} className="border-b last:border-0 pb-6">
+                                        <p className="font-medium mb-3 text-base">{idx + 1}. {q.question}</p>
+
+                                        <div className="space-y-2 mb-3">
+                                            {q.options.map((opt, optIdx) => {
+                                                let style = "border-transparent bg-muted/20 text-muted-foreground"; // default
+                                                if (optIdx === q.correctAnswer) style = "border-green-200 bg-green-50 text-green-800 font-medium";
+                                                if (userAnswers[idx] === optIdx && !isCorrect) style = "border-red-200 bg-red-50 text-red-800";
+
+                                                return (
+                                                    <div key={optIdx} className={cn("p-2 rounded-lg border text-sm flex items-start gap-2", style)}>
+                                                        <span className="mt-0.5 min-w-[1.25rem]">{String.fromCharCode(65 + optIdx)}.</span>
+                                                        <span>{opt}</span>
+                                                        {optIdx === q.correctAnswer && <CheckCircle className="h-4 w-4 ml-auto text-green-600 shrink-0" />}
+                                                        {userAnswers[idx] === optIdx && !isCorrect && <XCircle className="h-4 w-4 ml-auto text-red-500 shrink-0" />}
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+
+                                        {/* Explanation / Grounding */}
+                                        <div className="bg-cream-50 p-3 rounded-lg text-sm text-gray-700 flex gap-2 items-start">
+                                            <span className="font-bold text-ace-blue shrink-0 text-xs uppercase tracking-wide mt-0.5">Explanation:</span>
+                                            <span>{q.explanation}</span>
                                         </div>
                                     </div>
                                 )
@@ -210,7 +278,7 @@ export function QuizDialog({ documentId, deckId }: QuizDialogProps) {
                         </div>
 
                         <DialogFooter>
-                            <Button onClick={() => setIsOpen(false)}>Close</Button>
+                            <Button onClick={() => setIsOpen(false)}>Close Evaluation</Button>
                         </DialogFooter>
                     </>
                 )}
