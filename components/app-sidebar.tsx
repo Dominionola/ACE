@@ -8,6 +8,7 @@ import {
   Settings,
   Plus,
   Library,
+  TrendingUp,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -54,6 +55,17 @@ const navMain = [
       {
         title: "History",
         url: "/dashboard/study/history",
+      },
+    ],
+  },
+  {
+    title: "Performance",
+    url: "/dashboard/grades",
+    icon: TrendingUp,
+    items: [
+      {
+        title: "Grades & Goals",
+        url: "/dashboard/grades",
       },
     ],
   },

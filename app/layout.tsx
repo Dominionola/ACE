@@ -1,11 +1,28 @@
 import type { Metadata } from "next";
 import { Inter, Newsreader } from "next/font/google";
-import "./globals.css";
+import { Toaster } from "@/components/ui/toaster";
 
-const inter = Inter({
-  variable: "--font-inter",
+// ... existing code ...
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body
+        className={`${inter.variable} ${newsreader.variable} antialiased font-serif bg-cream-50 text-ace-blue selection:bg-ace-blue selection:text-white overflow-x-hidden`}
+      >
+        {children}
+        <Toaster />
+      </body>
+    </html>
+  );
+}
+variable: "--font-inter",
   subsets: ["latin"],
-  display: "swap",
+    display: "swap",
 });
 
 const newsreader = Newsreader({
