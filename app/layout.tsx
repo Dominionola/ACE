@@ -1,28 +1,12 @@
 import type { Metadata } from "next";
 import { Inter, Newsreader } from "next/font/google";
+import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
-// ... existing code ...
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en">
-      <body
-        className={`${inter.variable} ${newsreader.variable} antialiased font-serif bg-cream-50 text-ace-blue selection:bg-ace-blue selection:text-white overflow-x-hidden`}
-      >
-        {children}
-        <Toaster />
-      </body>
-    </html>
-  );
-}
-variable: "--font-inter",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-    display: "swap",
+  display: "swap",
 });
 
 const newsreader = Newsreader({
@@ -48,8 +32,8 @@ export default function RootLayout({
         className={`${inter.variable} ${newsreader.variable} antialiased font-serif bg-cream-50 text-ace-blue selection:bg-ace-blue selection:text-white overflow-x-hidden`}
       >
         {children}
+        <Toaster />
       </body>
     </html>
   );
 }
-
