@@ -8,6 +8,9 @@ import {
     GradeHistorySchema,
     SubjectGoalSchema
 } from "@/lib/schemas/grade";
+import { generateObject } from "ai";
+import { google } from "@ai-sdk/google";
+import { z } from "zod";
 
 export async function logGrade(input: unknown) {
     const supabase = await createClient();
@@ -88,14 +91,6 @@ export async function setSubjectGoal(input: unknown) {
     }
 
     try {
-        // Upsert based on user_id and subject_name unique constraint (assuming we add one)
-        // For now, we'll just insert/upsert. 
-        // Logic: specific subjects should be unique per user.
-        // We might need to ensure the DB schema supports this constraint or handle it here.
-        // Let's assume a simple insert for now, or use upsert if we had a unique constraint.
-        // Since I can't easily change DB constraints right now without SQL editor or migrations, 
-        // I will check if it exists first.
-
         const { data: existing } = await supabase
             .from("subject_goals")
             .select("id")
@@ -144,4 +139,134 @@ export async function getSubjectGoals() {
     }
 
     return data;
+}
+
+// --- Report Card Extraction ---
+
+const ExtractedGradesSchema = z.object({
+    grades: z.array(z.object({
+        subject_name: z.string(),
+        grade: z.string().describe("The numeric or letter grade value"),
+    }))
+});
+
+export async function extractGradesFromReport(formData: FormData) {
+    const file = formData.get("file") as File;
+
+    if (!file) {
+        return { success: false, error: "No file provided" };
+    }
+
+    try {
+        const isPdf = file.type === "application/pdf";
+        let promptContent: any[] = [];
+
+        if (isPdf) {
+            // PDF Text Extraction
+            const arrayBuffer = await file.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+
+            // Dynamic import to avoid build issues (same as document.ts)
+            const pdfParse = (await import("pdf-parse")).default;
+            // @ts-ignore - pdf-parse types are messy
+            const data = await pdfParse(buffer);
+
+            promptContent = [{ type: 'text', text: `Extract grades from this text:\n${data.text}` }];
+        } else {
+            // Image Processing
+            const arrayBuffer = await file.arrayBuffer();
+            const base64 = Buffer.from(arrayBuffer).toString("base64");
+
+            promptContent = [
+                { type: 'text', text: "Extract all list of subjects and their corresponding grades/scores from this report card image." },
+                { type: 'image', image: base64 }
+            ];
+        }
+
+        const { object } = await generateObject({
+            model: google("gemini-2.5-flash-lite"),
+            schema: ExtractedGradesSchema,
+            system: "You are an expert data extraction assistant. Your task is to identify and extract all academic subjects and their corresponding grades, marks, or scores from the provided document. Return them as a strict JSON array.",
+            messages: [
+                { role: "user" as const, content: promptContent }
+            ]
+        });
+
+        return { success: true, data: object.grades };
+
+    } catch (error) {
+        console.error("Extraction error:", error);
+        return { success: false, error: "Failed to extract data. Please ensure the file is clear." };
+    }
+}
+
+export async function bulkLogGrades(grades: { subject_name: string, grade_value: string, semester: string }[]) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return { success: false, error: "Unauthorized" };
+
+    const { error } = await supabase.from("grade_history").insert(
+        grades.map(g => ({ ...g, user_id: user.id }))
+    );
+
+    if (error) {
+        console.error("Bulk log error:", error);
+        return { success: false, error: "Failed to save grades." };
+    }
+
+    revalidatePath("/dashboard/grades");
+    return { success: true };
+}
+
+export async function bulkSetGoals(goals: { subject_name: string, target_grade: string }[]) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return { success: false, error: "Unauthorized" };
+
+    // Using upsert with conflict handling
+    const { error } = await supabase.from("subject_goals").upsert(
+        goals.map(g => ({ ...g, user_id: user.id })),
+        { onConflict: 'user_id, subject_name' }
+    );
+
+    if (error) {
+        console.error("Bulk goal error:", error);
+        return { success: false, error: "Failed to save goals." };
+    }
+
+    revalidatePath("/dashboard/grades");
+    return { success: true };
+}
+
+export async function getUniqueSubjects() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+
+    // Fetch distinct subjects from both history and goals
+    const { data: grades } = await supabase.from("grade_history").select("subject_name").eq("user_id", user.id);
+    const { data: goals } = await supabase.from("subject_goals").select("subject_name").eq("user_id", user.id);
+
+    const subjects = new Set<string>();
+    grades?.forEach(g => subjects.add(g.subject_name));
+    goals?.forEach(g => subjects.add(g.subject_name));
+
+    return Array.from(subjects).sort().map(s => ({ value: s, label: s }));
+}
+
+export async function getUniqueSemesters() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+
+    const { data } = await supabase.from("grade_history").select("semester").eq("user_id", user.id);
+
+    const semesters = new Set<string>();
+    data?.forEach(d => {
+        if (d.semester) semesters.add(d.semester);
+    });
+
+    return Array.from(semesters).sort();
 }

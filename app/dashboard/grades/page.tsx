@@ -1,11 +1,14 @@
 import { GradeForm } from "@/components/grade-form";
 import { GradeList } from "@/components/grade-list";
 import { GoalForm } from "@/components/goal-form";
-import { getGrades, getSubjectGoals } from "@/lib/actions/grade";
+import { ReportCardUploader } from "@/components/report-uploader";
+import { getGrades, getSubjectGoals, getUniqueSubjects, getUniqueSemesters } from "@/lib/actions/grade";
 
 export default async function GradesPage() {
     const grades = await getGrades();
     const goals = await getSubjectGoals();
+    const subjects = await getUniqueSubjects();
+    const semesters = await getUniqueSemesters();
 
     return (
         <div className="container mx-auto p-6 space-y-8 max-w-5xl">
@@ -21,17 +24,21 @@ export default async function GradesPage() {
                 {/* Left Column: Input Forms */}
                 <div className="lg:col-span-1 space-y-6">
                     <section>
+                        <ReportCardUploader />
+                    </section>
+
+                    <section>
                         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                             <span>📝 Log Result</span>
                         </h2>
-                        <GradeForm />
+                        <GradeForm subjects={subjects} />
                     </section>
 
                     <section>
                         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                             <span>🎯 Set Goal</span>
                         </h2>
-                        <GoalForm />
+                        <GoalForm subjects={subjects} />
                     </section>
                 </div>
 
@@ -40,7 +47,7 @@ export default async function GradesPage() {
                     <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                         <span>📊 Grade History</span>
                     </h2>
-                    <GradeList grades={grades} goals={goals} />
+                    <GradeList grades={grades} goals={goals} semesters={semesters} />
                 </div>
             </div>
         </div>

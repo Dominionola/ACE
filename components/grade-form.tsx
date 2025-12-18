@@ -10,8 +10,13 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Combobox } from "@/components/ui/combobox";
 
-export function GradeForm() {
+interface GradeFormProps {
+    subjects: { value: string; label: string }[];
+}
+
+export function GradeForm({ subjects }: GradeFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
 
@@ -39,11 +44,16 @@ export function GradeForm() {
 
     return (
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 border p-4 rounded-xl bg-white/50 backdrop-blur-sm">
-            <h3 className="font-semibold text-lg text-ace-blue">Log New Grade</h3>
-
             <div className="grid gap-2">
                 <Label htmlFor="subject">Subject</Label>
-                <Input id="subject" placeholder="e.g. Mathematics" {...form.register("subject_name")} />
+                <Combobox
+                    options={subjects}
+                    value={form.watch("subject_name")}
+                    onChange={(val) => form.setValue("subject_name", val)}
+                    placeholder="Select or type subject..."
+                    searchPlaceholder="Search subject..."
+                    allowCustom
+                />
                 {form.formState.errors.subject_name && <p className="text-red-500 text-xs">{form.formState.errors.subject_name.message}</p>}
             </div>
 

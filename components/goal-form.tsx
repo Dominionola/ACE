@@ -10,8 +10,13 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Loader2, Target } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Combobox } from "@/components/ui/combobox";
 
-export function GoalForm() {
+interface GoalFormProps {
+    subjects: { value: string; label: string }[];
+}
+
+export function GoalForm({ subjects }: GoalFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
 
@@ -45,7 +50,14 @@ export function GoalForm() {
 
             <div className="grid gap-2">
                 <Label htmlFor="goal-subject">Subject</Label>
-                <Input id="goal-subject" placeholder="e.g. Physics" {...form.register("subject_name")} />
+                <Combobox
+                    options={subjects}
+                    value={form.watch("subject_name")}
+                    onChange={(val) => form.setValue("subject_name", val)}
+                    placeholder="Select or type subject..."
+                    searchPlaceholder="Search subject..."
+                    allowCustom
+                />
                 {form.formState.errors.subject_name && <p className="text-red-500 text-xs">{form.formState.errors.subject_name.message}</p>}
             </div>
 
