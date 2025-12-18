@@ -41,8 +41,10 @@ We follow an **Agentic Development** approach, prioritizing:
   - [x] Grounding (Question Explanations)
   - [x] Performance Report (Weakness/Recommendations)
 
-### Phase 4: Analytics & Insights (📅 Planned)
-- [ ] Grade History Logging
+### Phase 4: Analytics & Insights (🚧 In Progress)
+- [x] **Grade History Logging** (✅ Completed)
+  - [x] Schema & Actions
+  - [x] UI (Grades & Goal Setting)
 - [ ] Performance Trends
 - [ ] AI Study Strategy Recommendations
 
