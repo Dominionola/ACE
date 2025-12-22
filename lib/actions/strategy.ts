@@ -111,3 +111,71 @@ Keep the ENTIRE response under 300 words. Be direct, no fluff.`;
         return { success: false, error: `Failed to generate: ${errorMessage}` };
     }
 }
+
+// --- Weekly Focus Management ---
+
+interface FocusItem {
+    subject: string;
+    hours: number;
+}
+
+export async function saveWeeklyFocus(semester: string, focusItems: FocusItem[]) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: "Unauthorized" };
+
+    // Store in study_strategies table as JSON in a new column
+    // Or create a separate table - for simplicity, we'll use the existing strategy record
+    const { data: existingStrategy } = await supabase
+        .from("study_strategies")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("semester", semester)
+        .single();
+
+    if (existingStrategy) {
+        const { error } = await supabase
+            .from("study_strategies")
+            .update({ weekly_focus: focusItems })
+            .eq("id", existingStrategy.id);
+
+        if (error) {
+            console.error("Error saving weekly focus:", error);
+            return { success: false, error: "Failed to save weekly focus." };
+        }
+    } else {
+        // Create a new strategy record with just weekly focus
+        const { error } = await supabase
+            .from("study_strategies")
+            .insert({
+                user_id: user.id,
+                semester,
+                strategy_content: "",
+                weekly_focus: focusItems,
+            });
+
+        if (error) {
+            console.error("Error creating weekly focus:", error);
+            return { success: false, error: "Failed to save weekly focus." };
+        }
+    }
+
+    revalidatePath(`/dashboard/grades/${encodeURIComponent(semester)}`);
+    return { success: true };
+}
+
+export async function getWeeklyFocus(semester: string): Promise<FocusItem[]> {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+
+    const { data } = await supabase
+        .from("study_strategies")
+        .select("weekly_focus")
+        .eq("user_id", user.id)
+        .eq("semester", semester)
+        .single();
+
+    return data?.weekly_focus || [];
+}
+

@@ -1,5 +1,6 @@
-import { getGradesForSemester, getStudyStrategy } from "@/lib/actions/strategy";
+import { getGradesForSemester, getStudyStrategy, getWeeklyFocus } from "@/lib/actions/strategy";
 import { StrategyView } from "@/components/strategy-view";
+import { WeeklyFocusEditor } from "@/components/weekly-focus-editor";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Target, CheckCircle, AlertCircle } from "lucide-react";
 import Link from "next/link";
@@ -14,6 +15,10 @@ export default async function SemesterPage({ params }: SemesterPageProps) {
 
     const { grades, goals } = await getGradesForSemester(decodedSemester);
     const existingStrategy = await getStudyStrategy(decodedSemester);
+    const weeklyFocus = await getWeeklyFocus(decodedSemester);
+
+    // Extract all subject names for the course picker
+    const availableSubjects = grades.map((g: any) => g.subject_name);
 
     // Helper to find goal for a subject
     const getGoal = (subject: string) => goals.find((g: any) => g.subject_name.toLowerCase() === subject.toLowerCase());
@@ -99,6 +104,15 @@ export default async function SemesterPage({ params }: SemesterPageProps) {
                 </div>
             </div>
 
+            {/* Weekly Focus Editor */}
+            <div className="mb-8">
+                <WeeklyFocusEditor
+                    semester={decodedSemester}
+                    initialFocus={weeklyFocus}
+                    availableSubjects={availableSubjects}
+                />
+            </div>
+
             {/* AI Strategy Section */}
             <StrategyView
                 semester={decodedSemester}
@@ -107,3 +121,4 @@ export default async function SemesterPage({ params }: SemesterPageProps) {
         </div>
     );
 }
+
