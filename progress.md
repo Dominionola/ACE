@@ -45,9 +45,15 @@ We follow an **Agentic Development** approach, prioritizing:
 - [x] **Grade History Logging** (✅ Completed)
   - [x] Schema & Actions
   - [x] UI (Grades & Goal Setting)
-- [ ] Performance Trends
-- [ ] AI Study Strategy Recommendations
+- [ ] **Performance Trends** (🎯 Next Priority)
+  - [ ] Chart Component (recharts integration)
+  - [ ] Trend Data Aggregation
+  - [ ] UI Integration
+- [x] **AI Study Strategy Recommendations** (✅ Completed)
+  - [x] Strategy Generation Action
+  - [x] Semester Detail View
+  - [x] AI Analysis UI
 
 ## 📝 Deliverables & Next Steps
-1.  **Immediate:** Complete Quiz Generation feature (Schema -> Action -> UI).
-2.  **Next:** Verify end-to-end "Study Loop" (Upload -> Chat -> Quiz).
+1.  **Immediate:** Build Performance Trends visualization (charts for grade progression).
+2.  **Polish:** Review UI consistency with style guide, add empty states.

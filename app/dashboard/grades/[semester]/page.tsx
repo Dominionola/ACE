@@ -64,12 +64,16 @@ export default async function SemesterPage({ params }: SemesterPageProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {grades.map((grade: any) => {
                         const goal = getGoal(grade.subject_name);
-                        let status = "neutral";
+                        let status: "met" | "missed" | "neutral" = "neutral";
+
                         if (goal) {
                             const gradeNum = parseFloat(grade.grade_value);
                             const goalNum = parseFloat(goal.target_grade);
                             if (!isNaN(gradeNum) && !isNaN(goalNum)) {
                                 status = gradeNum >= goalNum ? "met" : "missed";
+                            } else {
+                                // For letter grades, check exact match
+                                status = grade.grade_value.toLowerCase() === goal.target_grade.toLowerCase() ? "met" : "missed";
                             }
                         }
 

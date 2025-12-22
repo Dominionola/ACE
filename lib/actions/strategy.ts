@@ -61,23 +61,30 @@ export async function generateStudyStrategy(semester: string) {
         };
     });
 
-    const prompt = `You are an expert academic advisor. Analyze the following student grades and goals for ${semester}, then provide a detailed, actionable study strategy.
+    const prompt = `You are a concise academic advisor. Analyze these ${semester} grades and provide a SHORT, actionable study strategy.
 
 ## Student Data:
-${subjectData.map(s => `- ${s.subject}: Achieved ${s.grade}, Target: ${s.target}`).join('\n')}
+${subjectData.map(s => `- ${s.subject}: Got ${s.grade}, Target: ${s.target}`).join('\n')}
 
-## Your Task:
-1. **Performance Summary**: Brief overview of strengths and weaknesses.
-2. **Priority Subjects**: Which subjects need the most attention? Why?
-3. **Study Schedule**: Suggest a weekly study plan (hours per subject).
-4. **Techniques**: Recommend specific study methods for each weak subject.
-5. **Motivation**: A short encouraging message.
+## Respond with ONLY these sections (keep each brief - 3-5 lines max):
 
-Format your response in clear markdown with headers. Be specific and actionable.`;
+### 🎯 Top 3 Priority Subjects
+List the 3 subjects needing most attention with ONE reason each.
+
+### 📅 Weekly Focus
+A simple weekly hour allocation for the top 5 struggling subjects only.
+
+### 💡 Quick Wins
+3 specific techniques to improve weakest subjects.
+
+### 🔥 Motivation
+One short encouraging sentence.
+
+Keep the ENTIRE response under 300 words. Be direct, no fluff.`;
 
     try {
         const { text } = await generateText({
-            model: google("gemini-2.0-flash"),
+            model: google("gemini-2.5-flash-lite"),
             prompt,
         });
 
@@ -98,8 +105,9 @@ Format your response in clear markdown with headers. Be specific and actionable.
         revalidatePath(`/dashboard/grades/${encodeURIComponent(semester)}`);
         return { success: true, data: text };
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("AI generation error:", error);
-        return { success: false, error: "Failed to generate strategy. Please try again." };
+        const errorMessage = error?.message || error?.toString() || "Unknown error";
+        return { success: false, error: `Failed to generate: ${errorMessage}` };
     }
 }
