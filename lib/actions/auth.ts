@@ -40,7 +40,7 @@ export async function login(formData: FormData): Promise<AuthResult> {
     const result = LoginSchema.safeParse(rawData);
 
     if (!result.success) {
-        return { success: false, error: result.error.errors[0]?.message };
+        return { success: false, error: result.error.issues[0]?.message };
     }
 
     const { error } = await supabase.auth.signInWithPassword({
@@ -72,7 +72,7 @@ export async function signup(formData: FormData): Promise<AuthResult> {
     const result = SignupSchema.safeParse(rawData);
 
     if (!result.success) {
-        return { success: false, error: result.error.errors[0]?.message };
+        return { success: false, error: result.error.issues[0]?.message };
     }
 
     const { error } = await supabase.auth.signUp({

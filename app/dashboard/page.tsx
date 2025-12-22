@@ -7,6 +7,8 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Plus, BookOpen, Calendar, TrendingUp } from "lucide-react";
+import { StudyTimer } from "@/components/study-timer";
+import Link from "next/link";
 
 export default function DashboardPage() {
   return (
@@ -34,52 +36,64 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid gap-6 md:grid-cols-3 mb-8">
-          <div className="bg-white p-6 rounded-3xl border border-ace-blue/10 shadow-sm hover:shadow-lg transition-shadow">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-blue-100 rounded-full text-ace-blue">
-                <BookOpen strokeWidth={1.5} className="h-5 w-5" />
+        <div className="grid gap-8 lg:grid-cols-3">
+          {/* Left: Stats + Quick Action */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Quick Stats */}
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="bg-white p-6 rounded-3xl border border-ace-blue/10 shadow-sm hover:shadow-lg transition-shadow">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-blue-100 rounded-full text-ace-blue">
+                    <BookOpen strokeWidth={1.5} className="h-5 w-5" />
+                  </div>
+                  <span className="font-sans text-sm text-ace-blue/60 uppercase tracking-wide">Cards Due</span>
+                </div>
+                <p className="font-serif text-3xl text-ace-blue">24</p>
               </div>
-              <span className="font-sans text-sm text-ace-blue/60 uppercase tracking-wide">Cards Due</span>
+
+              <div className="bg-white p-6 rounded-3xl border border-ace-blue/10 shadow-sm hover:shadow-lg transition-shadow">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-green-100 rounded-full text-green-700">
+                    <TrendingUp strokeWidth={1.5} className="h-5 w-5" />
+                  </div>
+                  <span className="font-sans text-sm text-ace-blue/60 uppercase tracking-wide">Streak</span>
+                </div>
+                <p className="font-serif text-3xl text-ace-blue">7 days</p>
+              </div>
+
+              <div className="bg-white p-6 rounded-3xl border border-ace-blue/10 shadow-sm hover:shadow-lg transition-shadow">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-orange-100 rounded-full text-orange-700">
+                    <Calendar strokeWidth={1.5} className="h-5 w-5" />
+                  </div>
+                  <span className="font-sans text-sm text-ace-blue/60 uppercase tracking-wide">Next Exam</span>
+                </div>
+                <p className="font-serif text-3xl text-ace-blue">Dec 20</p>
+              </div>
             </div>
-            <p className="font-serif text-3xl text-ace-blue">24</p>
+
+            {/* Quick Action */}
+            <div className="bg-ace-blue/5 p-8 rounded-3xl border border-ace-blue/10 flex flex-col md:flex-row items-center justify-between gap-4">
+              <div>
+                <h2 className="font-serif text-2xl text-ace-blue mb-1">Ready to study?</h2>
+                <p className="font-sans text-ace-blue/60">Create a new deck or start a review session.</p>
+              </div>
+              <Link
+                href="/dashboard/decks"
+                className="px-8 py-4 bg-ace-blue text-white rounded-full font-medium hover:bg-ace-light transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
+              >
+                <Plus strokeWidth={1.5} className="h-5 w-5" />
+                Create Deck
+              </Link>
+            </div>
           </div>
 
-          <div className="bg-white p-6 rounded-3xl border border-ace-blue/10 shadow-sm hover:shadow-lg transition-shadow">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-green-100 rounded-full text-green-700">
-                <TrendingUp strokeWidth={1.5} className="h-5 w-5" />
-              </div>
-              <span className="font-sans text-sm text-ace-blue/60 uppercase tracking-wide">Streak</span>
-            </div>
-            <p className="font-serif text-3xl text-ace-blue">7 days</p>
+          {/* Right: Study Timer */}
+          <div className="lg:col-span-1">
+            <StudyTimer />
           </div>
-
-          <div className="bg-white p-6 rounded-3xl border border-ace-blue/10 shadow-sm hover:shadow-lg transition-shadow">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-orange-100 rounded-full text-orange-700">
-                <Calendar strokeWidth={1.5} className="h-5 w-5" />
-              </div>
-              <span className="font-sans text-sm text-ace-blue/60 uppercase tracking-wide">Next Exam</span>
-            </div>
-            <p className="font-serif text-3xl text-ace-blue">Dec 20</p>
-          </div>
-        </div>
-
-        {/* Quick Action */}
-        <div className="bg-ace-blue/5 p-8 rounded-3xl border border-ace-blue/10 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div>
-            <h2 className="font-serif text-2xl text-ace-blue mb-1">Ready to study?</h2>
-            <p className="font-sans text-ace-blue/60">Create a new deck or start a review session.</p>
-          </div>
-          <button className="px-8 py-4 bg-ace-blue text-white rounded-full font-medium hover:bg-ace-light transition-all shadow-lg hover:shadow-xl flex items-center gap-2">
-            <Plus strokeWidth={1.5} className="h-5 w-5" />
-            Create Deck
-          </button>
         </div>
       </main>
     </>
   );
 }
-

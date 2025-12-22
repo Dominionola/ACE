@@ -41,7 +41,7 @@ export async function createDeck(formData: FormData): Promise<CreateDeckResult> 
     const result = InsertDeckSchema.safeParse(rawData);
 
     if (!result.success) {
-        return { success: false, error: result.error.errors[0]?.message || "Invalid input" };
+        return { success: false, error: result.error.issues[0]?.message || "Invalid input" };
     }
 
     // Insert into database

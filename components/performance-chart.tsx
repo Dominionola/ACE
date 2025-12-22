@@ -1,6 +1,8 @@
 "use client";
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from "recharts";
+import { calculateGPA, getGPAClassification, type GradeScale } from "@/lib/utils/gpa";
+import { useState } from "react";
 
 interface GradeTrend {
     semester: string;
@@ -26,6 +28,8 @@ const COLORS = [
 ];
 
 export function PerformanceChart({ trends, subjects }: PerformanceChartProps) {
+    const [gpaScale, setGpaScale] = useState<GradeScale>("4.0");
+
     if (trends.length === 0) {
         return (
             <div className="text-center py-16 text-ace-blue/40">
@@ -35,6 +39,11 @@ export function PerformanceChart({ trends, subjects }: PerformanceChartProps) {
             </div>
         );
     }
+
+    // Calculate overall GPA from all grades
+    const allGrades = trends.flatMap(t => Object.values(t.subjects).map(v => String(v)));
+    const overallGPA = calculateGPA(allGrades, gpaScale);
+    const classification = getGPAClassification(overallGPA, gpaScale);
 
     // Flatten data for Recharts: each semester row has keys for each subject
     const chartData = trends.map(t => ({
@@ -79,6 +88,38 @@ export function PerformanceChart({ trends, subjects }: PerformanceChartProps) {
     // Multiple semesters: show line chart with average and per-subject lines
     return (
         <div className="space-y-6">
+            {/* GPA Stats Card */}
+            <div className="bg-gradient-to-br from-ace-blue to-ace-light p-6 rounded-2xl text-white">
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-serif font-semibold">Cumulative GPA</h3>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => setGpaScale("4.0")}
+                            className={`px-3 py-1 text-xs rounded-full transition-all ${gpaScale === "4.0"
+                                    ? "bg-white text-ace-blue font-bold"
+                                    : "bg-white/20 hover:bg-white/30"
+                                }`}
+                        >
+                            4.0 Scale
+                        </button>
+                        <button
+                            onClick={() => setGpaScale("5.0")}
+                            className={`px-3 py-1 text-xs rounded-full transition-all ${gpaScale === "5.0"
+                                    ? "bg-white text-ace-blue font-bold"
+                                    : "bg-white/20 hover:bg-white/30"
+                                }`}
+                        >
+                            5.0 Scale
+                        </button>
+                    </div>
+                </div>
+                <div className="flex items-end gap-3">
+                    <span className="text-5xl font-serif font-bold">{overallGPA.toFixed(2)}</span>
+                    <span className="text-lg opacity-80 pb-1">/ {gpaScale}</span>
+                </div>
+                <p className="mt-2 text-white/80 font-medium">{classification}</p>
+            </div>
+
             {/* Average Trend */}
             <div>
                 <h3 className="text-lg font-serif font-semibold text-ace-blue mb-4">

@@ -9,6 +9,7 @@ import {
   Plus,
   Library,
   TrendingUp,
+  Globe,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -40,6 +41,17 @@ const navMain = [
       {
         title: "Create New",
         url: "/dashboard/decks/new",
+      },
+    ],
+  },
+  {
+    title: "Explore",
+    url: "/dashboard/explore",
+    icon: Globe,
+    items: [
+      {
+        title: "Public Decks",
+        url: "/dashboard/explore",
       },
     ],
   },
