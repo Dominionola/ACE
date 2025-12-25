@@ -39,6 +39,45 @@ export async function getStudyStrategy(semester: string) {
     return data;
 }
 
+// Helper function to parse weekly focus from AI-generated strategy text
+function parseWeeklyFocusFromStrategy(strategyText: string): { subject: string; hours: number }[] {
+    const focusItems: { subject: string; hours: number }[] = [];
+
+    // Find the Weekly Focus section
+    const weeklyFocusMatch = strategyText.match(/###?\s*📅?\s*Weekly Focus[\s\S]*?(?=###|💡|$)/i);
+    if (!weeklyFocusMatch) return focusItems;
+
+    const section = weeklyFocusMatch[0];
+
+    // Pattern to match "Subject Name: X hours" - handles inline format
+    // Matches: "Data Structure & Algorithms: 5 hours" or "HCNA: 4 hours"
+    // Works both for newline-separated and inline formats
+    const pattern = /([A-Za-z][A-Za-z0-9\s&\-\(\)]+?):\s*(\d+)\s*hours?/gi;
+    let match;
+
+    while ((match = pattern.exec(section)) !== null) {
+        let subject = match[1].trim();
+        const hours = parseInt(match[2], 10);
+
+        // Clean up the subject name
+        subject = subject
+            .replace(/^\*\*/, '')  // Remove leading **
+            .replace(/\*\*$/, '')  // Remove trailing **
+            .replace(/^[\-•*]\s*/, '') // Remove bullet points
+            .trim();
+
+        // Skip if it's a section header or too short
+        if (subject && subject.length > 2 && hours > 0 && hours <= 20) {
+            // Avoid duplicates
+            if (!focusItems.find(f => f.subject.toLowerCase() === subject.toLowerCase())) {
+                focusItems.push({ subject, hours });
+            }
+        }
+    }
+
+    return focusItems;
+}
+
 export async function generateStudyStrategy(semester: string) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -72,7 +111,7 @@ ${subjectData.map(s => `- ${s.subject}: Got ${s.grade}, Target: ${s.target}`).jo
 List the 3 subjects needing most attention with ONE reason each.
 
 ### 📅 Weekly Focus
-A simple weekly hour allocation for the top 5 struggling subjects only.
+A simple weekly hour allocation for the top 5 struggling subjects. Format each line exactly as: "Subject Name: X hours"
 
 ### 💡 Quick Wins
 3 specific techniques to improve weakest subjects.
@@ -88,13 +127,17 @@ Keep the ENTIRE response under 300 words. Be direct, no fluff.`;
             prompt,
         });
 
-        // Save to database (upsert)
+        // Parse weekly focus from the AI response
+        const parsedWeeklyFocus = parseWeeklyFocusFromStrategy(text);
+
+        // Save to database (upsert) with parsed weekly focus
         const { error } = await supabase
             .from("study_strategies")
             .upsert({
                 user_id: user.id,
                 semester,
                 strategy_content: text,
+                weekly_focus: parsedWeeklyFocus,
             }, { onConflict: 'user_id, semester' });
 
         if (error) {
@@ -103,7 +146,7 @@ Keep the ENTIRE response under 300 words. Be direct, no fluff.`;
         }
 
         revalidatePath(`/dashboard/grades/${encodeURIComponent(semester)}`);
-        return { success: true, data: text };
+        return { success: true, data: text, weeklyFocus: parsedWeeklyFocus };
 
     } catch (error: any) {
         console.error("AI generation error:", error);

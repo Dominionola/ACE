@@ -1,6 +1,11 @@
 import { getGradesForSemester, getStudyStrategy, getWeeklyFocus } from "@/lib/actions/strategy";
+import { getUpcomingExams, getStudySessionsForWeek } from "@/lib/actions/study";
 import { StrategyView } from "@/components/strategy-view";
 import { WeeklyFocusEditor } from "@/components/weekly-focus-editor";
+import { StudySchedule } from "@/components/study-schedule";
+import { SessionLogger } from "@/components/session-logger";
+import { ExamTracker } from "@/components/exam-tracker";
+import { StudyProgress } from "@/components/study-progress";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Target, CheckCircle, AlertCircle } from "lucide-react";
 import Link from "next/link";
@@ -16,6 +21,11 @@ export default async function SemesterPage({ params }: SemesterPageProps) {
     const { grades, goals } = await getGradesForSemester(decodedSemester);
     const existingStrategy = await getStudyStrategy(decodedSemester);
     const weeklyFocus = await getWeeklyFocus(decodedSemester);
+    const exams = await getUpcomingExams();
+    const { totalMinutes, bySubject } = await getStudySessionsForWeek();
+
+    // Calculate planned minutes from weekly focus
+    const plannedMinutes = weeklyFocus.reduce((sum: number, item: any) => sum + (item.hours * 60), 0);
 
     // Extract all subject names for the course picker
     const availableSubjects = grades.map((g: any) => g.subject_name);
@@ -48,19 +58,37 @@ export default async function SemesterPage({ params }: SemesterPageProps) {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-3 gap-4 mb-8">
-                <div className="bg-white p-6 rounded-2xl border border-ace-blue/5 shadow-sm">
-                    <p className="text-sm text-ace-blue/60 uppercase tracking-wide font-bold">Subjects</p>
-                    <p className="text-3xl font-serif font-bold text-ace-blue mt-1">{totalSubjects}</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                {/* 1. Progress Card */}
+                <StudyProgress
+                    plannedMinutes={plannedMinutes}
+                    completedMinutes={totalMinutes}
+                    bySubject={bySubject}
+                />
+
+                {/* 2. Quick Log Card */}
+                <div className="bg-white p-5 rounded-2xl border border-ace-blue/5 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <p className="text-sm text-ace-blue/60 uppercase tracking-wide font-bold mb-1">Study Logger</p>
+                        <p className="text-sm text-ace-blue/80">Track your daily progress.</p>
+                    </div>
+                    <div className="mt-4">
+                        <SessionLogger subjects={availableSubjects} />
+                    </div>
                 </div>
-                <div className="bg-white p-6 rounded-2xl border border-ace-blue/5 shadow-sm">
-                    <p className="text-sm text-ace-blue/60 uppercase tracking-wide font-bold">Goals Set</p>
-                    <p className="text-3xl font-serif font-bold text-ace-blue mt-1">{goalsSet}/{totalSubjects}</p>
+
+                {/* 3. Goals Stats */}
+                <div className="bg-white p-5 rounded-2xl border border-ace-blue/5 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <p className="text-sm text-ace-blue/60 uppercase tracking-wide font-bold mb-1">Goals Met</p>
+                        <p className="text-3xl font-serif font-bold text-ace-blue">{goalsMet}<span className="text-base font-sans font-normal text-ace-blue/40">/{goalsSet || 0}</span></p>
+                    </div>
                 </div>
-                <div className="bg-white p-6 rounded-2xl border border-ace-blue/5 shadow-sm">
-                    <p className="text-sm text-ace-blue/60 uppercase tracking-wide font-bold">Goals Met</p>
-                    <p className="text-3xl font-serif font-bold text-green-600 mt-1">{goalsMet}/{goalsSet || 0}</p>
-                </div>
+            </div>
+
+            {/* Exam Tracker */}
+            <div className="mb-8">
+                <ExamTracker subjects={availableSubjects} exams={exams} />
             </div>
 
             {/* Subjects Grid */}
@@ -113,12 +141,20 @@ export default async function SemesterPage({ params }: SemesterPageProps) {
                 />
             </div>
 
+            {/* Generated Study Schedule */}
+            {
+                weeklyFocus.length > 0 && (
+                    <div className="mb-8 bg-white p-6 rounded-3xl border border-ace-blue/10 shadow-sm">
+                        <StudySchedule focusItems={weeklyFocus} />
+                    </div>
+                )
+            }
+
             {/* AI Strategy Section */}
             <StrategyView
                 semester={decodedSemester}
                 existingStrategy={existingStrategy?.strategy_content || null}
             />
-        </div>
+        </div >
     );
 }
-

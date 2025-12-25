@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -48,6 +49,7 @@ export function WeeklyFocusEditor({
     const [hours, setHours] = useState("2");
     const [isSaving, setIsSaving] = useState(false);
     const { toast } = useToast();
+    const router = useRouter();
 
     // Get subjects not already in focus
     const unusedSubjects = availableSubjects.filter(
@@ -101,6 +103,8 @@ export function WeeklyFocusEditor({
                 title: "Saved!",
                 description: "Your weekly focus has been saved.",
             });
+            // Refresh to update the schedule display
+            router.refresh();
         } else {
             toast({
                 title: "Error",
@@ -119,7 +123,7 @@ export function WeeklyFocusEditor({
                 <div className="flex items-center gap-2">
                     <Clock className="h-5 w-5 text-ace-blue" />
                     <h3 className="font-serif text-lg font-semibold text-ace-blue">
-                        📅 Weekly Focus
+                        Weekly Focus
                     </h3>
                 </div>
                 <div className="flex gap-2">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { generateStudyStrategy } from "@/lib/actions/strategy";
 import { Loader2, Sparkles, RefreshCw } from "lucide-react";
@@ -16,6 +17,7 @@ export function StrategyView({ semester, existingStrategy }: StrategyViewProps) 
     const [strategy, setStrategy] = useState(existingStrategy);
     const [isGenerating, setIsGenerating] = useState(false);
     const { toast } = useToast();
+    const router = useRouter();
 
     const handleGenerate = async () => {
         setIsGenerating(true);
@@ -25,6 +27,8 @@ export function StrategyView({ semester, existingStrategy }: StrategyViewProps) 
         if (result.success && result.data) {
             setStrategy(result.data);
             toast({ title: "Strategy Generated!", description: "Your personalized study plan is ready." });
+            // Refresh the page to update WeeklyFocusEditor with parsed data
+            router.refresh();
         } else {
             toast({ title: "Error", description: result.error, variant: "destructive" });
         }

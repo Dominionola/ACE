@@ -84,3 +84,39 @@ All core features have been implemented:
 - [x] Public Decks Explorer (`/dashboard/explore`)
 - [x] Clone deck to library feature
 - [x] Updated sidebar navigation
+
+---
+
+## 🎯 v2.5 Study Planning (NEW)
+
+### Weekly Focus System
+- [x] Interactive Weekly Focus Editor
+- [x] AI-parsed focus from strategy (auto-populate)
+- [x] Add/remove courses with custom hours
+- [x] Save to database with instant refresh
+
+### Study Schedule Generator
+- [x] Auto-generate weekly schedule from focus
+- [x] Calendar-based week tracking (Week 1-52)
+- [x] Weekly rotation with subject emphasis (+20% time)
+- [x] Week navigation (prev/next/today)
+- [x] Visual emphasis indicators (star badges)
+
+---
+
+## 💡 Suggested Next Steps
+
+### Quick Wins (1-2 hours each)
+1. **Study Session Logger** - Track actual study time vs planned
+2. **Export Schedule** - Download as PDF or iCal
+3. **Exam Date Tracker** - Add exam dates to increase hours as exams approach
+
+### Medium Features (3-5 hours each)
+4. **Progress Dashboard** - "You studied 8/14 hours this week"
+5. **Spaced Repetition** - SM-2 algorithm for flashcards
+6. **Mobile Responsive Polish** - Optimize for phone/tablet
+
+### Advanced Features (1-2 days each)
+7. **Google Calendar Sync** - Auto-add study blocks
+8. **AI Weekly Report** - End-of-week performance summary
+9. **Study Streaks & Gamification** - Badges, XP, leaderboards
