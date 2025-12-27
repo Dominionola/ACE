@@ -3,12 +3,18 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/lib/schemas/deck";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, RotateCw, CheckCircle, BrainCircuit } from "lucide-react";
+import { ArrowLeft, RotateCw, CheckCircle, BrainCircuit, HelpCircle } from "lucide-react";
 import { updateCardProgress } from "@/lib/actions/card";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import confetti from "canvas-confetti";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface StudyPlayerProps {
     cards: Card[];
@@ -113,6 +119,29 @@ export function StudyPlayer({ cards, deckId }: StudyPlayerProps) {
                     className="h-full bg-green-500 transition-all duration-300"
                     style={{ width: `${((currentIndex) / studyQueue.length) * 100}%` }}
                 />
+            </div>
+
+            {/* SRS Info Tooltip */}
+            <div className="flex justify-end mb-2">
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <button className="flex items-center gap-1 text-xs text-ace-blue/40 hover:text-ace-blue/60 transition-colors">
+                                <HelpCircle className="h-4 w-4" />
+                                <span>How grading works</span>
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs bg-ace-blue text-white p-4 rounded-xl border-0 shadow-xl">
+                            <p className="font-serif text-lg mb-2">Spaced Repetition</p>
+                            <ul className="space-y-2 text-xs opacity-90">
+                                <li>🔴 <strong>Again:</strong> Forgot it. See it in 1m.</li>
+                                <li>🟠 <strong>Hard:</strong> Struggled. See it in 2d.</li>
+                                <li>🔵 <strong>Good:</strong> Recalled OK. See it in 3d.</li>
+                                <li>🟢 <strong>Easy:</strong> Instant recall. See it in 4d.</li>
+                            </ul>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             </div>
 
             {/* Flashcard Area */}
