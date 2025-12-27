@@ -77,7 +77,7 @@ export function StudyProgress({ plannedMinutes, completedMinutes, bySubject }: S
     const t = themes[status];
 
     return (
-        <div className={`${t.bg} p-4 rounded-2xl border ${t.border} transition-colors duration-500`}>
+        <div className={`${t.bg} p-4 rounded-2xl border ${t.border} transition-colors duration-500 animate-fade-in-up`}>
             <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                     <TrendingUp className={`h-5 w-5 ${t.icon}`} />

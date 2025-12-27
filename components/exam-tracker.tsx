@@ -62,7 +62,7 @@ export function ExamTracker({ subjects, exams }: ExamTrackerProps) {
     };
 
     return (
-        <div className="bg-white p-5 rounded-2xl border border-ace-blue/5 shadow-sm">
+        <div className="bg-white p-5 rounded-2xl border border-ace-blue/5 shadow-sm animate-fade-in-up delay-100">
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                     <CalendarDays className="h-5 w-5 text-ace-blue" />
@@ -188,9 +188,12 @@ export function ExamTracker({ subjects, exams }: ExamTrackerProps) {
                     })}
                 </div>
             ) : (
-                <p className="text-center py-4 text-ace-blue/40 text-sm">
-                    No upcoming exams. Add one to boost study time automatically!
-                </p>
+                <div className="text-center py-6 text-ace-blue/40">
+                    <CalendarDays className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">
+                        No upcoming exams. Add one to boost study time automatically!
+                    </p>
+                </div>
             )}
         </div>
     );

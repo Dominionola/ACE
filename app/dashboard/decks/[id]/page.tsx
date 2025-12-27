@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Plus, BookOpen, FileText, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, BookOpen, FileText, Trash2, Play } from "lucide-react";
 import { getDeckById } from "@/lib/actions/deck";
 import { getDocumentsForDeck } from "@/lib/actions/document";
 import { getCurrentUser } from "@/lib/actions/auth";
 import { DeckStudyView } from "@/components/deck-study-view";
+import { FlashcardForm } from "@/components/flashcard-form";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -58,8 +59,8 @@ export default async function DeckDetailPage({ params }: DeckDetailPageProps) {
                     Back to Decks
                 </Link>
 
-                {/* Deck Header */}
-                <div className="flex items-start justify-between mb-8">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-8">
                     <div>
                         <h1 className="font-serif text-3xl text-ace-blue mb-2">{deck.title}</h1>
                         {deck.description && (
@@ -78,10 +79,18 @@ export default async function DeckDetailPage({ params }: DeckDetailPageProps) {
                             </div>
                         )}
                     </div>
-                    <button className="px-6 py-3 bg-ace-blue text-white rounded-full font-medium hover:bg-ace-light transition-all shadow-lg hover:shadow-xl flex items-center gap-2">
-                        <Plus strokeWidth={1.5} className="h-5 w-5" />
-                        Add Card
-                    </button>
+                    <div className="flex items-center gap-2">
+                        {deck.cards.length > 0 && (
+                            <Link
+                                href={`/dashboard/decks/${deck.id}/study`}
+                                className="px-6 py-3 bg-green-600 text-white rounded-full font-medium hover:bg-green-700 transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
+                            >
+                                <Play strokeWidth={1.5} className="h-5 w-5" />
+                                Study Now
+                            </Link>
+                        )}
+                        <FlashcardForm deckId={deck.id} />
+                    </div>
                 </div>
 
                 {/* Study Materials & AI Chat */}
@@ -98,10 +107,15 @@ export default async function DeckDetailPage({ params }: DeckDetailPageProps) {
                         <p className="font-sans text-ace-blue/60 mb-6 max-w-md">
                             Add flashcards to this deck to start studying.
                         </p>
-                        <button className="px-6 py-3 bg-ace-blue text-white rounded-full font-medium hover:bg-ace-light transition-all shadow-lg flex items-center gap-2">
-                            <Plus strokeWidth={1.5} className="h-5 w-5" />
-                            Add Your First Card
-                        </button>
+                        <FlashcardForm
+                            deckId={deck.id}
+                            trigger={
+                                <button className="px-6 py-3 bg-ace-blue text-white rounded-full font-medium hover:bg-ace-light transition-all shadow-lg flex items-center gap-2">
+                                    <Plus strokeWidth={1.5} className="h-5 w-5" />
+                                    Add Your First Card
+                                </button>
+                            }
+                        />
                     </div>
                 ) : (
                     <div className="grid gap-4">

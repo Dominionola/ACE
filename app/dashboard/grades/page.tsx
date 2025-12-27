@@ -6,6 +6,7 @@ import { PerformanceChart } from "@/components/performance-chart";
 import { getGrades, getSubjectGoals, getUniqueSubjects, getUniqueSemesters } from "@/lib/actions/grade";
 import { getPerformanceTrends } from "@/lib/actions/analytics";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Pencil, Target, BarChart2, TrendingUp } from "lucide-react";
 
 export default async function GradesPage() {
     const grades = await getGrades();
@@ -33,14 +34,14 @@ export default async function GradesPage() {
 
                     <section>
                         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-ace-blue">
-                            <span>📝 Log Result</span>
+                            <span className="flex items-center gap-2"><Pencil className="w-4 h-4" /> Log Result</span>
                         </h2>
                         <GradeForm subjects={subjects} />
                     </section>
 
                     <section>
                         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-ace-blue">
-                            <span>🎯 Set Goal</span>
+                            <span className="flex items-center gap-2"><Target className="w-4 h-4" /> Set Goal</span>
                         </h2>
                         <GoalForm subjects={subjects} />
                     </section>
@@ -52,15 +53,15 @@ export default async function GradesPage() {
                         <TabsList className="grid w-full grid-cols-2 mb-6 bg-cream-100 rounded-full p-1">
                             <TabsTrigger
                                 value="history"
-                                className="rounded-full data-[state=active]:bg-white data-[state=active]:text-ace-blue data-[state=active]:shadow-sm"
+                                className="rounded-full data-[state=active]:bg-white data-[state=active]:text-ace-blue data-[state=active]:shadow-sm flex items-center gap-2"
                             >
-                                📊 Grade History
+                                <BarChart2 className="w-4 h-4" /> Grade History
                             </TabsTrigger>
                             <TabsTrigger
                                 value="trends"
-                                className="rounded-full data-[state=active]:bg-white data-[state=active]:text-ace-blue data-[state=active]:shadow-sm"
+                                className="rounded-full data-[state=active]:bg-white data-[state=active]:text-ace-blue data-[state=active]:shadow-sm flex items-center gap-2"
                             >
-                                📈 Performance Trends
+                                <TrendingUp className="w-4 h-4" /> Performance Trends
                             </TabsTrigger>
                         </TabsList>
 

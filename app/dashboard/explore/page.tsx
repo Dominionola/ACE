@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Globe, Search } from "lucide-react";
+import { Globe, Search, BookOpen } from "lucide-react";
 
 export default async function ExplorePage() {
     const publicDecks = await getPublicDecks();
@@ -52,7 +52,9 @@ export default async function ExplorePage() {
                     </div>
                 ) : (
                     <div className="text-center py-16">
-                        <div className="text-6xl mb-4">📚</div>
+                        <div className="mb-4 bg-ace-blue/5 w-20 h-20 rounded-full flex items-center justify-center mx-auto">
+                            <BookOpen className="w-10 h-10 text-ace-blue" />
+                        </div>
                         <h2 className="font-serif text-2xl text-ace-blue mb-2">No Public Decks Yet</h2>
                         <p className="text-ace-blue/60">
                             Be the first to share your study materials with the community!

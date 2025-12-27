@@ -3,6 +3,7 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from "recharts";
 import { calculateGPA, getGPAClassification, type GradeScale } from "@/lib/utils/gpa";
 import { useState } from "react";
+import { ChartLine } from "lucide-react";
 
 interface GradeTrend {
     semester: string;
@@ -33,7 +34,9 @@ export function PerformanceChart({ trends, subjects }: PerformanceChartProps) {
     if (trends.length === 0) {
         return (
             <div className="text-center py-16 text-ace-blue/40">
-                <div className="text-5xl mb-4">📊</div>
+                <div className="mb-4 bg-ace-blue/5 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+                    <ChartLine className="w-8 h-8 text-ace-blue" />
+                </div>
                 <p className="font-serif text-lg italic">No trend data available yet.</p>
                 <p className="text-sm mt-2">Log grades across multiple semesters to see your progress.</p>
             </div>
@@ -96,8 +99,8 @@ export function PerformanceChart({ trends, subjects }: PerformanceChartProps) {
                         <button
                             onClick={() => setGpaScale("4.0")}
                             className={`px-3 py-1 text-xs rounded-full transition-all ${gpaScale === "4.0"
-                                    ? "bg-white text-ace-blue font-bold"
-                                    : "bg-white/20 hover:bg-white/30"
+                                ? "bg-white text-ace-blue font-bold"
+                                : "bg-white/20 hover:bg-white/30"
                                 }`}
                         >
                             4.0 Scale
@@ -105,8 +108,8 @@ export function PerformanceChart({ trends, subjects }: PerformanceChartProps) {
                         <button
                             onClick={() => setGpaScale("5.0")}
                             className={`px-3 py-1 text-xs rounded-full transition-all ${gpaScale === "5.0"
-                                    ? "bg-white text-ace-blue font-bold"
-                                    : "bg-white/20 hover:bg-white/30"
+                                ? "bg-white text-ace-blue font-bold"
+                                : "bg-white/20 hover:bg-white/30"
                                 }`}
                         >
                             5.0 Scale

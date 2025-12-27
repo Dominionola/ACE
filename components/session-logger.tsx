@@ -67,7 +67,7 @@ export function SessionLogger({ subjects }: SessionLoggerProps) {
                 <Button
                     variant="outline"
                     size="sm"
-                    className="rounded-full gap-2 text-green-600 border-green-200 hover:bg-green-50"
+                    className="rounded-full gap-2 text-green-600 border-green-200 hover:bg-green-50 animate-fade-in-up delay-200"
                 >
                     <Play className="h-4 w-4" />
                     Log Session
