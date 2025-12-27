@@ -15,7 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CalendarDays, Plus, Trash2, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { addExam, deleteExam, getExamUrgency, type Exam } from "@/lib/actions/study";
+import { addExam, deleteExam, type Exam } from "@/lib/actions/study";
+import { getExamUrgency } from "@/lib/utils/schedule";
 import { useRouter } from "next/navigation";
 
 interface ExamTrackerProps {
@@ -32,7 +33,7 @@ export function ExamTracker({ subjects, exams }: ExamTrackerProps) {
     const { toast } = useToast();
     const router = useRouter();
 
-    const handleAdd = async () => {
+    const handleAdd = async (keepOpen: boolean = false) => {
         if (!selectedSubject || !examDate) return;
 
         setIsAdding(true);
@@ -41,9 +42,14 @@ export function ExamTracker({ subjects, exams }: ExamTrackerProps) {
 
         if (result.success) {
             toast({ title: "Exam Added!", description: `${examType} for ${selectedSubject} scheduled.` });
-            setIsOpen(false);
+
+            // Clear fields but keep dialog open if requested
             setSelectedSubject("");
             setExamDate("");
+
+            if (!keepOpen) {
+                setIsOpen(false);
+            }
             router.refresh();
         } else {
             toast({ title: "Error", description: result.error, variant: "destructive" });
@@ -119,13 +125,21 @@ export function ExamTracker({ subjects, exams }: ExamTrackerProps) {
                                 </div>
                             </div>
                         </div>
-                        <DialogFooter>
+                        <DialogFooter className="flex-col sm:flex-row gap-2">
                             <Button
-                                onClick={handleAdd}
+                                onClick={() => handleAdd(true)}
                                 disabled={!selectedSubject || !examDate || isAdding}
-                                className="rounded-full bg-ace-blue"
+                                variant="outline"
+                                className="rounded-full flex-1"
                             >
-                                {isAdding ? "Adding..." : "Add Exam"}
+                                Save & Add Another
+                            </Button>
+                            <Button
+                                onClick={() => handleAdd(false)}
+                                disabled={!selectedSubject || !examDate || isAdding}
+                                className="rounded-full bg-ace-blue flex-1"
+                            >
+                                {isAdding ? "Adding..." : "Save & Close"}
                             </Button>
                         </DialogFooter>
                     </DialogContent>

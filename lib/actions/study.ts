@@ -143,20 +143,4 @@ export async function deleteExam(examId: string): Promise<{ success: boolean }> 
     return { success: true };
 }
 
-/**
- * Calculate days until exam and suggested study boost
- */
-export function getExamUrgency(examDate: string): { daysUntil: number; boost: number } {
-    const today = new Date();
-    const exam = new Date(examDate);
-    const diffTime = exam.getTime() - today.getTime();
-    const daysUntil = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    // Boost study time as exam approaches
-    let boost = 1.0;
-    if (daysUntil <= 3) boost = 1.5;      // 50% more in last 3 days
-    else if (daysUntil <= 7) boost = 1.3; // 30% more in last week
-    else if (daysUntil <= 14) boost = 1.2; // 20% more in last 2 weeks
-
-    return { daysUntil, boost };
-}
