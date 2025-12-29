@@ -11,7 +11,13 @@ const google = createGoogleGenerativeAI({
     apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
 });
 
-export async function generateQuiz(documentId: string) {
+// Config Schema
+const QuizConfigSchema = z.object({
+    questionCount: z.number().min(1).max(20).default(5),
+    topic: z.string().optional(),
+});
+
+export async function generateQuiz(documentId: string, config: { questionCount: number; topic?: string } = { questionCount: 5 }) {
     const supabase = await createClient();
 
     // 1. Auth & Ownership Check
@@ -34,6 +40,11 @@ export async function generateQuiz(documentId: string) {
         return { success: false, error: "Document not found or has no text content." };
     }
 
+    const { questionCount, topic } = config;
+    const topicInstruction = topic
+        ? `Focus specifically on the topic or section: "${topic}". Only generate questions related to this.`
+        : "Cover the most important concepts from the entire text.";
+
     // 3. Generate Quiz with Gemini
     try {
         const { object } = await generateObject({
@@ -42,11 +53,11 @@ export async function generateQuiz(documentId: string) {
             prompt: `You are a strict teacher. Generate a challenging multiple-choice quiz based on the following text.
           
           Requirements:
-          - Generate exactly 5 questions.
+          - Generate exactly ${questionCount} questions.
           - 4 options per question.
           - 'correctAnswer' must be the index (0-3) of the correct option.
           - 'explanation': A brief sentence explaining WHY the correct answer is right (Grounding).
-          - Focus on key concepts and understanding, not minor details.
+          - ${topicInstruction}
           
           Text:
           ${document.extracted_text.slice(0, 30000)}`, // Context limit
@@ -131,8 +142,9 @@ export async function saveQuizResult(input: unknown) {
         .from("quizzes")
         .insert({
             deck_id,
-            score, // Storing raw score for now, logic can adapt if schema changes
-            // created_at is usually default now()
+            score,
+            total_questions,
+            user_id: user.id,
         });
 
     if (error) {
