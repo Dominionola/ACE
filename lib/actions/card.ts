@@ -33,17 +33,22 @@ export async function generateFlashcards(documentId: string, deckId: string) {
         return { success: false, error: "Unauthorized" };
     }
 
-    // Rate Limit Check
-    const { checkRateLimit, AI_RATE_LIMIT } = await import("@/lib/rate-limit");
-    const rateCheck = checkRateLimit(`flashcards:${user.id}`, AI_RATE_LIMIT);
-    if (!rateCheck.success) {
-        return { success: false, error: `Rate limit exceeded. Try again in ${Math.ceil(rateCheck.resetIn / 60000)} minutes.` };
+    // 2. Verify Ownership BEFORE rate limiting
+    // Check that both the deck and document belong to this user
+    const { data: deck, error: deckError } = await supabase
+        .from("decks")
+        .select("id")
+        .eq("id", deckId)
+        .eq("user_id", user.id)
+        .single();
+
+    if (deckError || !deck) {
+        return { success: false, error: "Deck not found or access denied" };
     }
 
-    // 2. Fetch Document
     const { data: document, error: docError } = await supabase
         .from("documents")
-        .select("extracted_text")
+        .select("extracted_text, deck_id")
         .eq("id", documentId)
         .single();
 
@@ -51,7 +56,19 @@ export async function generateFlashcards(documentId: string, deckId: string) {
         return { success: false, error: "Document not found or empty." };
     }
 
-    // 3. Generate Cards with AI
+    // Verify document belongs to the user's deck
+    if (document.deck_id !== deckId) {
+        return { success: false, error: "Document does not belong to this deck." };
+    }
+
+    // 3. Rate Limit Check (only after ownership is confirmed)
+    const { checkRateLimit, AI_RATE_LIMIT } = await import("@/lib/rate-limit");
+    const rateCheck = checkRateLimit(`flashcards:${user.id}`, AI_RATE_LIMIT);
+    if (!rateCheck.success) {
+        return { success: false, error: `Rate limit exceeded. Try again in ${Math.ceil(rateCheck.resetIn / 60000)} minutes.` };
+    }
+
+    // 4. Generate Cards with AI
     try {
         const { object } = await generateObject({
             model: google("gemini-2.5-flash-lite"),
@@ -67,16 +84,13 @@ export async function generateFlashcards(documentId: string, deckId: string) {
           ${document.extracted_text.slice(0, 30000)}`,
         });
 
-        // 4. Prepare and Insert Cards
+        // 5. Prepare and Insert Cards
         const cardsToInsert: InsertCard[] = object.cards.map((card) => ({
             deck_id: deckId,
             front_content: card.front_content,
             back_content: card.back_content,
             difficulty_rating: 3, // Default
         }));
-
-        // Validate with Schema (optional but good practice)
-        // We skip individual validation loop for speed, assuming AI adheres to schema mostly.
 
         const { error: insertError } = await supabase
             .from("cards")
@@ -183,15 +197,22 @@ export async function updateCardProgress(
         return { success: false, error: "Unauthorized" };
     }
 
-    // Fetch current card stats
+    // Fetch current card stats with ownership verification
     const { data: card, error: fetchError } = await supabase
         .from("cards")
-        .select("ease_factor, interval, repetitions, deck_id")
+        .select(`
+            ease_factor, 
+            interval, 
+            repetitions, 
+            deck_id,
+            decks!inner(user_id)
+        `)
         .eq("id", cardId)
+        .eq("decks.user_id", user.id)
         .single();
 
     if (fetchError || !card) {
-        return { success: false, error: "Card not found" };
+        return { success: false, error: "Card not found or access denied" };
     }
 
     // Calculate new stats using SM-2
@@ -241,6 +262,21 @@ export async function deleteCard(cardId: string, deckId: string) {
         return { success: false, error: "Unauthorized" };
     }
 
+    // Verify ownership before deletion
+    const { data: card, error: fetchError } = await supabase
+        .from("cards")
+        .select(`
+            id,
+            decks!inner(user_id)
+        `)
+        .eq("id", cardId)
+        .eq("decks.user_id", user.id)
+        .single();
+
+    if (fetchError || !card) {
+        return { success: false, error: "Card not found or access denied" };
+    }
+
     const { error } = await supabase
         .from("cards")
         .delete()
@@ -253,3 +289,4 @@ export async function deleteCard(cardId: string, deckId: string) {
     revalidatePath(`/dashboard/decks/${deckId}`);
     return { success: true };
 }
+

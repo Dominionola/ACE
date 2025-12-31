@@ -12,6 +12,18 @@ interface RateLimitEntry {
 
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
+// Background cleanup: purge expired entries every 5 minutes
+if (typeof setInterval !== "undefined") {
+    setInterval(() => {
+        const now = Date.now();
+        for (const [key, entry] of rateLimitStore.entries()) {
+            if (now > entry.resetTime) {
+                rateLimitStore.delete(key);
+            }
+        }
+    }, 5 * 60 * 1000); // 5 minutes
+}
+
 interface RateLimitConfig {
     maxRequests: number;
     windowMs: number; // milliseconds
@@ -40,12 +52,15 @@ export function checkRateLimit(
         return { success: true, remaining: config.maxRequests - 1, resetIn: config.windowMs };
     }
 
+    // Clamp resetIn to avoid negative values
+    const resetIn = Math.max(0, current.resetTime - now);
+
     if (current.count >= config.maxRequests) {
         // Rate limited
         return {
             success: false,
             remaining: 0,
-            resetIn: current.resetTime - now,
+            resetIn,
         };
     }
 
@@ -54,7 +69,7 @@ export function checkRateLimit(
     return {
         success: true,
         remaining: config.maxRequests - current.count,
-        resetIn: current.resetTime - now,
+        resetIn,
     };
 }
 
