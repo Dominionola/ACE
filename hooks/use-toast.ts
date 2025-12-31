@@ -14,6 +14,7 @@ type ToasterToast = {
     open?: boolean
     onOpenChange?: (open: boolean) => void
     variant?: "default" | "destructive"
+    className?: string
 }
 
 const actionTypes = {

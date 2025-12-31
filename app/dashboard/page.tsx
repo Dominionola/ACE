@@ -6,8 +6,11 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Plus, BookOpen, Calendar, TrendingUp } from "lucide-react";
+import { Plus, BookOpen, Calendar } from "lucide-react";
 import { StudyTimer } from "@/components/study-timer";
+import { TodaysPlan } from "@/components/todays-plan";
+import { StreakCounter } from "@/components/streak-counter";
+import { WeeklyReportCard } from "@/components/weekly-report-card";
 import Link from "next/link";
 
 export default function DashboardPage() {
@@ -39,6 +42,8 @@ export default function DashboardPage() {
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Left: Stats + Quick Action */}
           <div className="lg:col-span-2 space-y-6">
+            <TodaysPlan />
+
             {/* Quick Stats */}
             <div className="grid gap-4 md:grid-cols-3">
               <div className="bg-white p-6 rounded-3xl border border-ace-blue/10 shadow-sm hover:shadow-lg transition-shadow">
@@ -51,15 +56,7 @@ export default function DashboardPage() {
                 <p className="font-serif text-3xl text-ace-blue">24</p>
               </div>
 
-              <div className="bg-white p-6 rounded-3xl border border-ace-blue/10 shadow-sm hover:shadow-lg transition-shadow">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-green-100 rounded-full text-green-700">
-                    <TrendingUp strokeWidth={1.5} className="h-5 w-5" />
-                  </div>
-                  <span className="font-sans text-sm text-ace-blue/60 uppercase tracking-wide">Streak</span>
-                </div>
-                <p className="font-serif text-3xl text-ace-blue">7 days</p>
-              </div>
+              <StreakCounter />
 
               <div className="bg-white p-6 rounded-3xl border border-ace-blue/10 shadow-sm hover:shadow-lg transition-shadow">
                 <div className="flex items-center gap-3 mb-2">
@@ -88,8 +85,9 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Right: Study Timer */}
-          <div className="lg:col-span-1">
+          {/* Right: Study Timer + Coaching */}
+          <div className="lg:col-span-1 space-y-6">
+            <WeeklyReportCard />
             <StudyTimer />
           </div>
         </div>

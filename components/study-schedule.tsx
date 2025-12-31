@@ -11,6 +11,7 @@ import {
 import { downloadICalFile } from "@/lib/utils/export-schedule";
 import { Calendar, Clock, ChevronLeft, ChevronRight, Star, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { GoogleCalendarSync } from "@/components/google-calendar-sync";
 
 interface StudyScheduleProps {
     focusItems: FocusItem[];
@@ -95,6 +96,7 @@ export function StudySchedule({ focusItems, studyDays = [0, 1, 2, 3, 4] }: Study
                         <Download className="h-3.5 w-3.5" />
                         Export
                     </Button>
+                    <GoogleCalendarSync schedule={schedule} />
                 </div>
             </div>
 

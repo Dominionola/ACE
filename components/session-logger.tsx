@@ -43,10 +43,24 @@ export function SessionLogger({ subjects }: SessionLoggerProps) {
         setIsLogging(false);
 
         if (result.success) {
+            let desc = `${duration} min logged for ${selectedSubject}.`;
+            if (result.xpGained) desc += ` (+${result.xpGained} XP)`;
+
             toast({
                 title: "Session Logged!",
-                description: `${duration} minutes of ${selectedSubject} recorded.`,
+                description: desc,
             });
+
+            if (result.newBadges && result.newBadges.length > 0) {
+                result.newBadges.forEach((b: any) => {
+                    toast({
+                        title: `🏆 Badge Unlocked: ${b.name}`,
+                        description: b.description,
+                        className: "bg-amber-50 border-amber-200 text-amber-900",
+                    });
+                });
+            }
+
             setIsOpen(false);
             setSelectedSubject("");
             setDuration("60");

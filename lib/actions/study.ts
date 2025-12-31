@@ -21,7 +21,7 @@ export async function logStudySession(
     subject: string,
     durationMinutes: number,
     notes?: string
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; xpGained?: number; newBadges?: any[] }> {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { success: false, error: "Unauthorized" };
@@ -38,8 +38,13 @@ export async function logStudySession(
         return { success: false, error: "Failed to log session" };
     }
 
+    // Trigger Gamification Updates
+    // We import dynamically to avoid circular dependencies if any (though currently safe)
+    const { updateGamificationStats } = await import("@/lib/actions/gamification");
+    const { xpGained, newBadges } = await updateGamificationStats(durationMinutes);
+
     revalidatePath("/dashboard");
-    return { success: true };
+    return { success: true, xpGained, newBadges };
 }
 
 export async function getStudySessionsForWeek(): Promise<{
