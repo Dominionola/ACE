@@ -120,7 +120,7 @@ export function GradeList({ grades, goals, semesters }: GradeListProps) {
                                     <div className="flex-1">
                                         <h4 className="font-semibold text-ace-blue">{grade.subject_name}</h4>
 
-                                        <div className="flex items-center gap-3 mt-1">
+                                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mt-1">
                                             <span className="text-2xl font-bold text-ace-blue font-serif">{grade.grade_value}</span>
 
                                             {/* Goal Display/Edit Section */}
@@ -170,7 +170,7 @@ export function GradeList({ grades, goals, semesters }: GradeListProps) {
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="text-red-300 hover:text-red-500 hover:bg-red-50 rounded-full opacity-0 group-hover/item:opacity-100 transition-opacity"
+                                        className="text-red-300 hover:text-red-500 hover:bg-red-50 rounded-full opacity-100 sm:opacity-0 sm:group-hover/item:opacity-100 transition-opacity"
                                         onClick={() => handleDelete(grade.id)}
                                     >
                                         <Trash2 className="h-4 w-4" />

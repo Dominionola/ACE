@@ -119,7 +119,7 @@ export function WeeklyFocusEditor({
     return (
         <div className="bg-white p-5 rounded-2xl border border-ace-blue/5 shadow-sm">
             {/* Header */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div className="flex items-center gap-2">
                     <Clock className="h-5 w-5 text-ace-blue" />
                     <h3 className="font-serif text-lg font-semibold text-ace-blue">

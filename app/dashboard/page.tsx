@@ -28,10 +28,10 @@ export default function DashboardPage() {
         </Breadcrumb>
       </header>
 
-      <main className="flex-1 p-6">
+      <main className="flex-1 p-4 sm:p-6">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="font-serif text-4xl text-ace-blue mb-2">
+          <h1 className="font-serif text-2xl sm:text-4xl text-ace-blue mb-2">
             Welcome back, <span className="italic">Student</span>
           </h1>
           <p className="font-sans text-ace-blue/60">

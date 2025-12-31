@@ -147,7 +147,7 @@ export function QuizDialog({ documentId, deckId, trigger }: QuizDialogProps) {
                     </Button>
                 )}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+            <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
                 <DialogHeader>
                     <DialogTitle className="font-serif text-2xl text-ace-blue">
                         {quizComplete ? "Quiz Results" : quizData ? "Quiz Time" : "Generate Quiz"}
@@ -277,7 +277,7 @@ export function QuizDialog({ documentId, deckId, trigger }: QuizDialogProps) {
                 ) : (
                     <div className="py-4 space-y-6">
                         {/* Score Section */}
-                        <div className="flex items-center justify-between p-6 bg-cream-50 rounded-2xl border border-ace-blue/10">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 sm:p-6 bg-cream-50 rounded-2xl border border-ace-blue/10">
                             <div className="flex items-center gap-4">
                                 <div className="h-16 w-16 bg-white rounded-full flex items-center justify-center shadow-sm">
                                     <Trophy className="h-8 w-8 text-yellow-500" />

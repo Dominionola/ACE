@@ -41,7 +41,7 @@ export function ChatInterface({ documentId, documentName }: ChatInterfaceProps) 
     const isLoading = status !== "ready";
 
     return (
-        <div className="flex flex-col h-[600px] border border-ace-blue/10 rounded-3xl bg-gradient-to-b from-cream-50 to-white shadow-lg overflow-hidden">
+        <div className="flex flex-col h-[calc(100vh-200px)] sm:h-[600px] max-h-[600px] border border-ace-blue/10 rounded-3xl bg-gradient-to-b from-cream-50 to-white shadow-lg overflow-hidden">
             {/* Header */}
             <div className="p-4 border-b border-ace-blue/10 bg-white/80 backdrop-blur-sm flex items-center gap-3">
                 <div className="p-2.5 bg-gradient-to-br from-ace-blue to-ace-light rounded-xl shadow-sm">
@@ -52,7 +52,7 @@ export function ChatInterface({ documentId, documentName }: ChatInterfaceProps) 
                         AI Study Tutor
                         <Sparkles className="h-4 w-4 text-yellow-500" />
                     </h3>
-                    <p className="text-xs text-ace-blue/50 truncate max-w-[250px]">
+                    <p className="text-xs text-ace-blue/50 truncate max-w-[120px] sm:max-w-[250px]">
                         Powered by: <span className="font-medium">{documentName}</span>
                     </p>
                 </div>

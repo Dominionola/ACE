@@ -131,7 +131,7 @@ export function FocusSessionModal({
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-md bg-white rounded-3xl border-0 shadow-2xl overflow-hidden p-0 gap-0">
+            <DialogContent className="w-[95vw] sm:max-w-md bg-white rounded-3xl border-0 shadow-2xl overflow-hidden p-0 gap-0">
 
                 {/* Header / Top Section */}
                 <div className={cn(

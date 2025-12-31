@@ -40,7 +40,7 @@ export function DeckStudyView({ deck, documents, userId }: DeckStudyViewProps) {
     return (
         <div className="space-y-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 lg:w-[400px] mb-6">
+                <TabsList className="grid w-full grid-cols-2 mb-6">
                     <TabsTrigger value="materials">Study Materials</TabsTrigger>
                     <TabsTrigger value="chat">AI Chat</TabsTrigger>
                 </TabsList>
@@ -57,7 +57,7 @@ export function DeckStudyView({ deck, documents, userId }: DeckStudyViewProps) {
                     </div>
 
                     {/* Documents List */}
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {documents.length === 0 ? (
                             <div className="col-span-full text-center py-12 text-ace-blue/40 font-sans italic">
                                 No documents uploaded yet.

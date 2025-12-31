@@ -158,7 +158,7 @@ export function StudyPlayer({ cards, deckId }: StudyPlayerProps) {
                         <span className="absolute top-6 left-6 text-xs font-bold text-ace-blue/30 uppercase tracking-widest">
                             Question
                         </span>
-                        <p className="text-2xl md:text-3xl font-serif text-ace-blue">
+                        <p className="text-lg sm:text-2xl md:text-3xl font-serif text-ace-blue">
                             {currentCard.front_content}
                         </p>
                         <p className="absolute bottom-6 text-sm text-ace-blue/40 flex items-center gap-2">
@@ -174,7 +174,7 @@ export function StudyPlayer({ cards, deckId }: StudyPlayerProps) {
                         <span className="absolute top-6 left-6 text-xs font-bold text-ace-blue/30 uppercase tracking-widest">
                             Answer
                         </span>
-                        <p className="text-xl md:text-2xl font-sans text-ace-blue/90 leading-relaxed">
+                        <p className="text-base sm:text-xl md:text-2xl font-sans text-ace-blue/90 leading-relaxed">
                             {currentCard.back_content}
                         </p>
                     </div>
@@ -205,12 +205,12 @@ export function StudyPlayer({ cards, deckId }: StudyPlayerProps) {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="grid grid-cols-4 gap-4"
+                        className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4"
                     >
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-1 sm:gap-2">
                             <Button
                                 variant="outline"
-                                className="h-14 border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:text-rose-800 rounded-xl"
+                                className="h-12 sm:h-14 border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:text-rose-800 rounded-xl text-sm sm:text-base"
                                 onClick={(e) => { e.stopPropagation(); handleRate(1); }}
                             >
                                 Again
@@ -218,10 +218,10 @@ export function StudyPlayer({ cards, deckId }: StudyPlayerProps) {
                             <span className="text-xs text-center text-rose-400 font-medium">1m</span>
                         </div>
 
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-1 sm:gap-2">
                             <Button
                                 variant="outline"
-                                className="h-14 border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100 hover:text-orange-800 rounded-xl"
+                                className="h-12 sm:h-14 border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100 hover:text-orange-800 rounded-xl text-sm sm:text-base"
                                 onClick={(e) => { e.stopPropagation(); handleRate(3); }}
                             >
                                 Hard
@@ -229,10 +229,10 @@ export function StudyPlayer({ cards, deckId }: StudyPlayerProps) {
                             <span className="text-xs text-center text-orange-400 font-medium">2d</span>
                         </div>
 
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-1 sm:gap-2">
                             <Button
                                 variant="outline"
-                                className="h-14 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 rounded-xl"
+                                className="h-12 sm:h-14 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 rounded-xl text-sm sm:text-base"
                                 onClick={(e) => { e.stopPropagation(); handleRate(4); }}
                             >
                                 Good
@@ -240,10 +240,10 @@ export function StudyPlayer({ cards, deckId }: StudyPlayerProps) {
                             <span className="text-xs text-center text-blue-400 font-medium">3d</span>
                         </div>
 
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-1 sm:gap-2">
                             <Button
                                 variant="outline"
-                                className="h-14 border-green-200 bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800 rounded-xl"
+                                className="h-12 sm:h-14 border-green-200 bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800 rounded-xl text-sm sm:text-base"
                                 onClick={(e) => { e.stopPropagation(); handleRate(5); }}
                             >
                                 Easy
