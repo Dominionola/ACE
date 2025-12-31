@@ -64,7 +64,18 @@ export async function getGrades() {
 
 export async function deleteGrade(id: string) {
     const supabase = await createClient();
-    const { error } = await supabase.from("grade_history").delete().eq("id", id);
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        return { success: false, error: "Unauthorized" };
+    }
+
+    // Delete with ownership check (RLS also enforces this, but explicit is better)
+    const { error } = await supabase
+        .from("grade_history")
+        .delete()
+        .eq("id", id)
+        .eq("user_id", user.id);
 
     if (error) {
         return { success: false, error: "Failed to delete grade" };
@@ -155,6 +166,25 @@ export async function extractGradesFromReport(formData: FormData) {
 
     if (!file) {
         return { success: false, error: "No file provided" };
+    }
+
+    // File size validation (10MB max)
+    const MAX_FILE_SIZE = 10 * 1024 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+        return { success: false, error: "File too large. Maximum size is 10MB." };
+    }
+
+    // Auth & Rate Limit
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return { success: false, error: "Unauthorized" };
+    }
+
+    const { checkRateLimit, AI_RATE_LIMIT } = await import("@/lib/rate-limit");
+    const rateCheck = checkRateLimit(`extract:${user.id}`, AI_RATE_LIMIT);
+    if (!rateCheck.success) {
+        return { success: false, error: `Rate limit exceeded. Try again in ${Math.ceil(rateCheck.resetIn / 60000)} minutes.` };
     }
 
     try {

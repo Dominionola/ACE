@@ -33,6 +33,13 @@ export async function generateFlashcards(documentId: string, deckId: string) {
         return { success: false, error: "Unauthorized" };
     }
 
+    // Rate Limit Check
+    const { checkRateLimit, AI_RATE_LIMIT } = await import("@/lib/rate-limit");
+    const rateCheck = checkRateLimit(`flashcards:${user.id}`, AI_RATE_LIMIT);
+    if (!rateCheck.success) {
+        return { success: false, error: `Rate limit exceeded. Try again in ${Math.ceil(rateCheck.resetIn / 60000)} minutes.` };
+    }
+
     // 2. Fetch Document
     const { data: document, error: docError } = await supabase
         .from("documents")
@@ -170,6 +177,12 @@ export async function updateCardProgress(
 ) {
     const supabase = await createClient();
 
+    // Auth check
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return { success: false, error: "Unauthorized" };
+    }
+
     // Fetch current card stats
     const { data: card, error: fetchError } = await supabase
         .from("cards")
@@ -221,6 +234,12 @@ export async function updateCardProgress(
 
 export async function deleteCard(cardId: string, deckId: string) {
     const supabase = await createClient();
+
+    // Auth check
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return { success: false, error: "Unauthorized" };
+    }
 
     const { error } = await supabase
         .from("cards")

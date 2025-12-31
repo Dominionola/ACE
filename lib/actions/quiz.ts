@@ -29,6 +29,13 @@ export async function generateQuiz(documentId: string, config: { questionCount: 
         return { success: false, error: "Unauthorized" };
     }
 
+    // Rate Limit Check
+    const { checkRateLimit, AI_RATE_LIMIT } = await import("@/lib/rate-limit");
+    const rateCheck = checkRateLimit(`quiz:${user.id}`, AI_RATE_LIMIT);
+    if (!rateCheck.success) {
+        return { success: false, error: `Rate limit exceeded. Try again in ${Math.ceil(rateCheck.resetIn / 60000)} minutes.` };
+    }
+
     // 2. Fetch Document Content
     const { data: document, error: docError } = await supabase
         .from("documents")

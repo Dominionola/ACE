@@ -11,6 +11,13 @@ export async function generateWeeklyReport() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { success: false, error: "Unauthorized" };
 
+    // Rate Limit Check
+    const { checkRateLimit, AI_RATE_LIMIT } = await import("@/lib/rate-limit");
+    const rateCheck = checkRateLimit(`report:${user.id}`, AI_RATE_LIMIT);
+    if (!rateCheck.success) {
+        return { success: false, error: `Rate limit exceeded. Try again in ${Math.ceil(rateCheck.resetIn / 60000)} minutes.` };
+    }
+
     try {
         // 1. Get Date Range for Current Week
         const currentWeekParam = getWeekNumber();

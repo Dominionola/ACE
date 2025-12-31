@@ -114,7 +114,7 @@ export function WeeklyReportCard() {
                         Weekly Review Ready
                     </h3>
                     <p className="text-ace-blue/60 text-sm line-clamp-2 mb-4">
-                        {content.summary}
+                        {content?.summary ?? "No summary available."}
                     </p>
 
                     <div className="mt-auto flex items-center text-sm font-medium text-indigo-600 gap-1 group-hover:gap-2 transition-all">
@@ -145,7 +145,7 @@ export function WeeklyReportCard() {
                             Advisor Summary
                         </h4>
                         <p className="text-indigo-800/80 leading-relaxed">
-                            {content.summary}
+                            {content?.summary ?? "No summary available."}
                         </p>
                     </section>
 
@@ -184,9 +184,11 @@ export function WeeklyReportCard() {
                     </div>
 
                     <div className="text-center pt-4 border-t">
-                        <p className="text-xs text-ace-blue/40 uppercase tracking-widest font-bold">
-                            Overall Trend: {content.grade_trend}
-                        </p>
+                        {content?.grade_trend && (
+                            <p className="text-xs text-ace-blue/40 uppercase tracking-widest font-bold">
+                                Overall Trend: {content.grade_trend}
+                            </p>
+                        )}
                     </div>
                 </div>
             </DialogContent>
