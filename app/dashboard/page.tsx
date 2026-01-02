@@ -6,14 +6,62 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Plus, BookOpen, Calendar } from "lucide-react";
-import { StudyTimer } from "@/components/study-timer";
+import { Plus, BookOpen, Calendar, Flame } from "lucide-react";
 import { TodaysPlan } from "@/components/todays-plan";
-import { StreakCounter } from "@/components/streak-counter";
 import { WeeklyReportCard } from "@/components/weekly-report-card";
+import { DashboardTimer } from "@/components/dashboard-timer";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { getUpcomingExams } from "@/lib/actions/study";
+import { getUserStats } from "@/lib/actions/gamification";
 
-export default function DashboardPage() {
+// Force dynamic rendering - this page requires user auth
+export const dynamic = "force-dynamic";
+
+export default async function DashboardPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Get user's name
+  const userName = user?.user_metadata?.full_name || "Student";
+
+  // Get cards due count (cards that are due for review)
+  let cardsDue = 0;
+  if (user) {
+    try {
+      const { count } = await supabase
+        .from("cards")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .lte("next_review", new Date().toISOString());
+      cardsDue = count || 0;
+    } catch {
+      cardsDue = 0;
+    }
+  }
+
+  // Get next exam
+  let nextExam = null;
+  let nextExamDate = "None";
+  try {
+    const exams = await getUpcomingExams();
+    nextExam = exams.length > 0 ? exams[0] : null;
+    nextExamDate = nextExam
+      ? new Date(nextExam.exam_date).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+      : "None";
+  } catch {
+    nextExamDate = "None";
+  }
+
+  // Get streak
+  let streak = 0;
+  try {
+    const stats = await getUserStats();
+    streak = stats?.current_streak || 0;
+  } catch {
+    streak = 0;
+  }
+
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border px-4">
@@ -29,66 +77,86 @@ export default function DashboardPage() {
       </header>
 
       <main className="flex-1 p-4 sm:p-6">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="font-serif text-2xl sm:text-4xl text-ace-blue mb-2">
-            Welcome back, <span className="italic">Student</span>
-          </h1>
-          <p className="font-sans text-ace-blue/60">
-            Continue your study sessions or create a new deck.
-          </p>
+        {/* Top Row: Welcome + Timer */}
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
+          <div>
+            <h1 className="font-serif text-2xl sm:text-3xl text-ace-blue mb-1">
+              Welcome back, <span className="italic">{userName}</span>
+            </h1>
+            <p className="font-sans text-ace-blue/60 text-sm">
+              Continue your study sessions or create a new deck.
+            </p>
+          </div>
+          {/* Compact Timer at Top */}
+          <div className="w-full lg:w-auto lg:min-w-[360px]">
+            <DashboardTimer />
+          </div>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-3">
+        <div className="grid gap-6 lg:grid-cols-3">
           {/* Left: Stats + Quick Action */}
           <div className="lg:col-span-2 space-y-6">
-            <TodaysPlan />
-
             {/* Quick Stats */}
             <div className="grid gap-4 md:grid-cols-3">
-              <div className="bg-white p-6 rounded-3xl border border-ace-blue/10 shadow-sm hover:shadow-lg transition-shadow">
+              <div className="bg-white p-5 rounded-2xl border border-ace-blue/10 shadow-sm hover:shadow-lg transition-shadow">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="p-2 bg-blue-100 rounded-full text-ace-blue">
-                    <BookOpen strokeWidth={1.5} className="h-5 w-5" />
+                    <BookOpen strokeWidth={1.5} className="h-4 w-4" />
                   </div>
-                  <span className="font-sans text-sm text-ace-blue/60 uppercase tracking-wide">Cards Due</span>
+                  <span className="font-sans text-xs text-ace-blue/60 uppercase tracking-wide">Cards Due</span>
                 </div>
-                <p className="font-serif text-3xl text-ace-blue">24</p>
+                <p className="font-serif text-2xl text-ace-blue">{cardsDue}</p>
               </div>
 
-              <StreakCounter />
-
-              <div className="bg-white p-6 rounded-3xl border border-ace-blue/10 shadow-sm hover:shadow-lg transition-shadow">
+              {/* Streak Counter */}
+              <div className="bg-white p-5 rounded-2xl border border-ace-blue/10 shadow-sm hover:shadow-lg transition-shadow">
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-orange-100 rounded-full text-orange-700">
-                    <Calendar strokeWidth={1.5} className="h-5 w-5" />
+                  <div className={`p-2 rounded-full ${streak > 0 ? "bg-orange-100 text-orange-600" : "bg-gray-100 text-gray-400"}`}>
+                    <Flame strokeWidth={1.5} className={`h-4 w-4 ${streak > 0 ? "animate-pulse" : ""}`} />
                   </div>
-                  <span className="font-sans text-sm text-ace-blue/60 uppercase tracking-wide">Next Exam</span>
+                  <span className="font-sans text-xs text-ace-blue/60 uppercase tracking-wide">Streak</span>
                 </div>
-                <p className="font-serif text-3xl text-ace-blue">Dec 20</p>
+                <div className="flex items-baseline gap-1">
+                  <p className="font-serif text-2xl text-ace-blue">{streak}</p>
+                  <span className="text-ace-blue/40 font-serif">days</span>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border border-ace-blue/10 shadow-sm hover:shadow-lg transition-shadow">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className={`p-2 rounded-full ${nextExam ? "bg-orange-100 text-orange-700" : "bg-gray-100 text-gray-400"}`}>
+                    <Calendar strokeWidth={1.5} className="h-4 w-4" />
+                  </div>
+                  <span className="font-sans text-xs text-ace-blue/60 uppercase tracking-wide">Next Exam</span>
+                </div>
+                <p className="font-serif text-2xl text-ace-blue">{nextExamDate}</p>
+                {nextExam && (
+                  <p className="text-xs text-ace-blue/50 mt-1 truncate">{nextExam.subject_name}</p>
+                )}
               </div>
             </div>
 
+            <TodaysPlan />
+
             {/* Quick Action */}
-            <div className="bg-ace-blue/5 p-8 rounded-3xl border border-ace-blue/10 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="bg-ace-blue/5 p-6 rounded-2xl border border-ace-blue/10 flex flex-col md:flex-row items-center justify-between gap-4">
               <div>
-                <h2 className="font-serif text-2xl text-ace-blue mb-1">Ready to study?</h2>
-                <p className="font-sans text-ace-blue/60">Create a new deck or start a review session.</p>
+                <h2 className="font-serif text-xl text-ace-blue mb-1">Ready to study?</h2>
+                <p className="font-sans text-sm text-ace-blue/60">Create a new deck or start a review session.</p>
               </div>
               <Link
                 href="/dashboard/decks"
-                className="px-8 py-4 bg-ace-blue text-white rounded-full font-medium hover:bg-ace-light transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
+                className="px-6 py-3 bg-ace-blue text-white rounded-full font-medium hover:bg-ace-light transition-all shadow-lg hover:shadow-xl flex items-center gap-2 text-sm"
               >
-                <Plus strokeWidth={1.5} className="h-5 w-5" />
+                <Plus strokeWidth={1.5} className="h-4 w-4" />
                 Create Deck
               </Link>
             </div>
           </div>
 
-          {/* Right: Study Timer + Coaching */}
-          <div className="lg:col-span-1 space-y-6">
+          {/* Right: Weekly Report */}
+          <div className="lg:col-span-1">
             <WeeklyReportCard />
-            <StudyTimer />
           </div>
         </div>
       </main>

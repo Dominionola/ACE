@@ -150,6 +150,28 @@ All major features implemented:
 
 ---
 
+## 🧭 v3.5 Dashboard Completion (✅ Completed - Jan 2, 2026)
+
+### New Pages Created
+- [x] `/dashboard/schedule` - Weekly schedule with focus editor
+- [x] `/dashboard/schedule/exams` - Exam tracker with study tips
+- [x] `/dashboard/study/history` - Study session logs with stats
+- [x] `/dashboard/chat` - Standalone AI Tutor chat
+- [x] `/dashboard/chat/history` - Coming soon placeholder
+- [x] `/dashboard/settings` - Settings landing page
+- [x] `/dashboard/settings/profile` - Profile editor with name update
+- [x] `/dashboard/settings/preferences` - Study & notification settings
+
+### Bug Fixes & Improvements
+- [x] Fixed middleware invocation error (Vercel deployment)
+- [x] Added early return for auth pages (faster login/signup load)
+- [x] Added `updateProfile` server action
+- [x] Dynamic account status (email verification check)
+- [x] Error handling for study history page
+- [x] Console warnings for unhandled chat message types
+
+---
+
 ## 💡 Future Enhancements (Backlog)
 
 | Feature | Priority | Effort |

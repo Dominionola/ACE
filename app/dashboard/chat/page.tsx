@@ -6,7 +6,6 @@ import { Send, Bot, Loader2, Sparkles, BookOpen } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
 
 export default function ChatPage() {
@@ -43,7 +42,7 @@ export default function ChatPage() {
     ];
 
     return (
-        <div className="container mx-auto p-6 max-w-4xl">
+        <div className="container mx-auto p-6 max-w-6xl">
             <header className="mb-6">
                 <div className="flex items-center gap-3 mb-2">
                     <div className="p-2 bg-gradient-to-br from-ace-blue to-ace-light rounded-xl">
@@ -72,10 +71,10 @@ export default function ChatPage() {
                 </p>
             </div>
 
-            {/* Chat Container */}
-            <div className="flex flex-col h-[calc(100vh-320px)] min-h-[400px] border border-ace-blue/10 rounded-3xl bg-gradient-to-b from-cream-50 to-white shadow-lg overflow-hidden">
+            {/* Chat Container - Wider */}
+            <div className="flex flex-col h-[calc(100vh-280px)] min-h-[500px] border border-ace-blue/10 rounded-3xl bg-gradient-to-b from-cream-50 to-white shadow-lg overflow-hidden">
                 {/* Messages Area */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4" ref={scrollRef}>
+                <div className="flex-1 overflow-y-auto p-6 space-y-4" ref={scrollRef}>
                     {messages.length === 0 && (
                         <div className="h-full flex flex-col items-center justify-center text-center p-8">
                             <div className="p-4 bg-ace-blue/5 rounded-2xl mb-4">
@@ -87,12 +86,12 @@ export default function ChatPage() {
                             <p className="font-sans text-sm text-ace-blue/50 max-w-sm mb-6">
                                 Ask me anything about study techniques, exam prep, or learning strategies.
                             </p>
-                            <div className="flex flex-wrap gap-2 justify-center max-w-md">
+                            <div className="flex flex-wrap gap-2 justify-center max-w-lg">
                                 {quickPrompts.map((text) => (
                                     <button
                                         key={text}
                                         onClick={() => setInput(text)}
-                                        className="px-3 py-2 text-xs bg-white border border-ace-blue/10 rounded-full text-ace-blue/70 hover:bg-ace-blue/5 transition-colors"
+                                        className="px-4 py-2 text-sm bg-white border border-ace-blue/10 rounded-full text-ace-blue/70 hover:bg-ace-blue/5 transition-colors"
                                     >
                                         {text}
                                     </button>
@@ -104,25 +103,13 @@ export default function ChatPage() {
                     {messages.map((message) => (
                         <div
                             key={message.id}
-                            className={`flex gap-3 animate-fade-in ${message.role === "user" ? "flex-row-reverse" : "flex-row"
+                            className={`flex animate-fade-in ${message.role === "user" ? "justify-end" : "justify-start"
                                 }`}
                         >
-                            <Avatar className="h-8 w-8 border-2 border-white shadow-sm flex-shrink-0">
-                                {message.role === "user" ? (
-                                    <AvatarFallback className="bg-gradient-to-br from-ace-blue to-ace-light text-white text-xs font-bold">
-                                        U
-                                    </AvatarFallback>
-                                ) : (
-                                    <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-xs font-bold text-[10px]">
-                                        AI
-                                    </AvatarFallback>
-                                )}
-                            </Avatar>
-
                             <div
-                                className={`rounded-2xl px-4 py-3 max-w-[85%] text-sm leading-relaxed shadow-sm whitespace-pre-wrap ${message.role === "user"
-                                    ? "bg-gradient-to-br from-ace-blue to-ace-light text-white rounded-tr-sm"
-                                    : "bg-white text-ace-blue rounded-tl-sm border border-ace-blue/5"
+                                className={`rounded-2xl px-5 py-3 max-w-[80%] text-sm leading-relaxed shadow-sm whitespace-pre-wrap ${message.role === "user"
+                                        ? "bg-gradient-to-br from-ace-blue to-ace-light text-white rounded-tr-sm"
+                                        : "bg-white text-ace-blue rounded-tl-sm border border-ace-blue/5"
                                     }`}
                             >
                                 {message.parts?.map((part, index) => {
@@ -140,16 +127,11 @@ export default function ChatPage() {
                     ))}
 
                     {isLoading && (
-                        <div className="flex gap-3">
-                            <Avatar className="h-8 w-8 border-2 border-white shadow-sm">
-                                <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-xs font-bold text-[10px]">
-                                    AI
-                                </AvatarFallback>
-                            </Avatar>
-                            <div className="bg-white rounded-2xl px-4 py-3 rounded-tl-sm border border-ace-blue/5 shadow-sm">
+                        <div className="flex justify-start">
+                            <div className="bg-white rounded-2xl px-5 py-3 rounded-tl-sm border border-ace-blue/5 shadow-sm">
                                 <div className="flex items-center gap-2 text-ace-blue/50">
-                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                    <span className="text-xs font-medium">Thinking...</span>
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    <span className="text-sm font-medium">Thinking...</span>
                                 </div>
                             </div>
                         </div>
@@ -165,7 +147,7 @@ export default function ChatPage() {
 
                 {/* Input Area */}
                 <div className="p-4 border-t border-ace-blue/10 bg-white/80 backdrop-blur-sm">
-                    <form onSubmit={onSubmit} className="flex gap-3 items-center">
+                    <form onSubmit={onSubmit} className="flex gap-3 items-center max-w-4xl mx-auto">
                         <Input
                             value={input}
                             onChange={(e) => setInput(e.target.value)}

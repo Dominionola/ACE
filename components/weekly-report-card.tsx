@@ -29,10 +29,15 @@ export function WeeklyReportCard() {
     const { toast } = useToast();
 
     useEffect(() => {
-        getLatestWeeklyReport().then(data => {
-            setReport(data);
-            setLoading(false);
-        });
+        getLatestWeeklyReport()
+            .then(data => {
+                setReport(data);
+                setLoading(false);
+            })
+            .catch(() => {
+                // On error, just show the "Generate Report" state
+                setLoading(false);
+            });
     }, []);
 
     const handleGenerate = async () => {

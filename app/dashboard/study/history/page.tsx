@@ -1,6 +1,7 @@
 import { getStudySessionsForWeek } from "@/lib/actions/study";
 import { createClient } from "@/lib/supabase/server";
 import { Clock, BookOpen, Calendar } from "lucide-react";
+import { redirect } from "next/navigation";
 
 export default async function StudyHistoryPage() {
     const supabase = await createClient();

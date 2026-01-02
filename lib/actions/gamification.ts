@@ -3,8 +3,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-// Badge Definitions
-export const BADGES = [
+// Badge Definitions (not exported - use server files can only export async functions)
+const BADGES = [
     { code: "FIRST_SESSION", name: "First Step", description: "Logged your first study session", icon: "🌱" },
     { code: "STREAK_3", name: "Momentum", description: "3-day study streak", icon: "🔥" },
     { code: "STREAK_7", name: "Unstoppable", description: "7-day study streak", icon: "🚀" },
