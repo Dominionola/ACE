@@ -118,3 +118,32 @@ export async function getCurrentUser() {
 
     return user;
 }
+
+// ============================================
+// Update Profile
+// ============================================
+
+const UpdateProfileSchema = z.object({
+    fullName: z.string().min(2, "Name must be at least 2 characters"),
+});
+
+export async function updateProfile(data: { fullName: string }): Promise<AuthResult> {
+    const supabase = await createClient();
+
+    const result = UpdateProfileSchema.safeParse(data);
+    if (!result.success) {
+        return { success: false, error: result.error.issues[0]?.message };
+    }
+
+    const { error } = await supabase.auth.updateUser({
+        data: { full_name: result.data.fullName },
+    });
+
+    if (error) {
+        return { success: false, error: error.message };
+    }
+
+    revalidatePath("/dashboard/settings/profile");
+    return { success: true };
+}
+
