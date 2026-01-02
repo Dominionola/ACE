@@ -12,6 +12,15 @@ export async function updateSession(request: NextRequest) {
         return NextResponse.next({ request });
     }
 
+    // Skip auth check for public auth pages - no need to call Supabase API
+    const isAuthRoute =
+        request.nextUrl.pathname === "/login" ||
+        request.nextUrl.pathname === "/signup";
+
+    if (isAuthRoute) {
+        return NextResponse.next({ request });
+    }
+
     try {
         let supabaseResponse = NextResponse.next({
             request,
@@ -44,20 +53,10 @@ export async function updateSession(request: NextRequest) {
         // Protected routes - redirect to login if not authenticated
         const isProtectedRoute =
             request.nextUrl.pathname.startsWith("/dashboard");
-        const isAuthRoute =
-            request.nextUrl.pathname === "/login" ||
-            request.nextUrl.pathname === "/signup";
 
         if (isProtectedRoute && !user) {
             const url = request.nextUrl.clone();
             url.pathname = "/login";
-            return NextResponse.redirect(url);
-        }
-
-        // Redirect logged-in users away from auth pages
-        if (isAuthRoute && user) {
-            const url = request.nextUrl.clone();
-            url.pathname = "/dashboard";
             return NextResponse.redirect(url);
         }
 
