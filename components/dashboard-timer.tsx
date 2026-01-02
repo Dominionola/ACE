@@ -20,8 +20,8 @@ export function DashboardTimer() {
     return (
         <div
             className={`rounded-2xl p-4 transition-all duration-500 ${mode === "focus"
-                    ? "bg-gradient-to-br from-ace-blue to-ace-light"
-                    : "bg-gradient-to-br from-green-600 to-green-500"
+                ? "bg-gradient-to-br from-ace-blue to-ace-light"
+                : "bg-gradient-to-br from-green-600 to-green-500"
                 }`}
         >
             <div className="flex items-center gap-4">
@@ -93,16 +93,17 @@ export function DashboardTimer() {
                         size="icon"
                         onClick={resetTimer}
                         className="text-white hover:bg-white/20 rounded-full h-9 w-9"
+                        title="Reset timer"
                     >
                         <RotateCcw className="h-4 w-4" />
                     </Button>
-
                     <Button
                         onClick={toggleTimer}
                         className={`rounded-full h-10 w-10 ${isRunning
-                                ? "bg-white/20 hover:bg-white/30 text-white"
-                                : "bg-white text-ace-blue hover:bg-white/90"
+                            ? "bg-white/20 hover:bg-white/30 text-white"
+                            : "bg-white text-ace-blue hover:bg-white/90"
                             }`}
+                        title={isRunning ? "Pause timer" : "Start timer"}
                     >
                         {isRunning ? (
                             <Pause className="h-5 w-5" />
@@ -110,7 +111,6 @@ export function DashboardTimer() {
                             <Play className="h-5 w-5 ml-0.5" />
                         )}
                     </Button>
-
                     <Button
                         variant="ghost"
                         size="icon"

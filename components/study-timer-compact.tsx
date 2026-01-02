@@ -20,8 +20,8 @@ export function StudyTimerCompact() {
     return (
         <div
             className={`rounded-2xl p-4 transition-all duration-500 ${mode === "focus"
-                    ? "bg-gradient-to-br from-ace-blue to-ace-light"
-                    : "bg-gradient-to-br from-green-600 to-green-500"
+                ? "bg-gradient-to-br from-ace-blue to-ace-light"
+                : "bg-gradient-to-br from-green-600 to-green-500"
                 }`}
         >
             <div className="flex items-center gap-4">
@@ -71,8 +71,9 @@ export function StudyTimerCompact() {
                             </>
                         )}
                     </div>
-                    <span className="text-sm text-white/70">{sessions} sessions completed</span>
-                </div>
+                    <span className="text-sm text-white/70">
+                        {sessions} session{sessions !== 1 ? 's' : ''} completed
+                    </span>                </div>
 
                 {/* Controls */}
                 <div className="flex items-center gap-2">
@@ -88,8 +89,8 @@ export function StudyTimerCompact() {
                     <Button
                         onClick={toggleTimer}
                         className={`rounded-full h-12 w-12 ${isRunning
-                                ? "bg-white/20 hover:bg-white/30"
-                                : "bg-white text-ace-blue hover:bg-white/90"
+                            ? "bg-white/20 hover:bg-white/30"
+                            : "bg-white text-ace-blue hover:bg-white/90"
                             }`}
                     >
                         {isRunning ? (

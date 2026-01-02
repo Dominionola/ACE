@@ -89,13 +89,12 @@ export function TimerProvider({
             interval = setInterval(() => {
                 setTimeLeft(t => t - 1);
             }, 1000);
-        } else if (timeLeft === 0) {
+        } else if (isRunning && timeLeft === 0) {
             switchMode();
         }
 
         return () => clearInterval(interval);
     }, [isRunning, timeLeft, switchMode]);
-
     const toggleTimer = () => setIsRunning(!isRunning);
 
     const resetTimer = () => {

@@ -19,13 +19,13 @@ export function FloatingTimerIsland() {
     if (minimized) {
         return (
             <button
+                aria-label="Expand timer"
                 onClick={() => setMinimized(false)}
                 className={`fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 ${mode === "focus"
-                        ? "bg-gradient-to-br from-ace-blue to-ace-light"
-                        : "bg-gradient-to-br from-green-600 to-green-500"
+                    ? "bg-gradient-to-br from-ace-blue to-ace-light"
+                    : "bg-gradient-to-br from-green-600 to-green-500"
                     }`}
-            >
-                <div className="relative">
+            >                <div className="relative">
                     {mode === "focus" ? (
                         <Brain className="h-6 w-6 text-white" />
                     ) : (
@@ -41,8 +41,8 @@ export function FloatingTimerIsland() {
     return (
         <div
             className={`fixed bottom-6 right-6 z-50 rounded-3xl shadow-2xl transition-all duration-500 border-2 border-white/20 backdrop-blur-sm ${mode === "focus"
-                    ? "bg-gradient-to-br from-ace-blue to-ace-light"
-                    : "bg-gradient-to-br from-green-600 to-green-500"
+                ? "bg-gradient-to-br from-ace-blue to-ace-light"
+                : "bg-gradient-to-br from-green-600 to-green-500"
                 }`}
         >
             <div className="p-4 flex items-center gap-4">
@@ -92,8 +92,7 @@ export function FloatingTimerIsland() {
                             </>
                         )}
                     </div>
-                    <span className="text-xs text-white/70">{sessions} sessions</span>
-                </div>
+                    <span className="text-xs text-white/70">{sessions} {sessions === 1 ? 'session' : 'sessions'}</span>                </div>
 
                 {/* Controls */}
                 <div className="flex items-center gap-2">
