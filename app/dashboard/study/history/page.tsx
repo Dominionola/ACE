@@ -9,6 +9,14 @@ export default async function StudyHistoryPage() {
     // Get this week's summary
     const weekData = await getStudySessionsForWeek();
 
+    if (!user) {
+        redirect('/login'); // or your auth page
+    }
+
+    if (!weekData || typeof weekData.totalMinutes !== 'number') {
+        // Handle error case
+        throw new Error('Failed to fetch week data');
+    }
     // Get all-time sessions (last 30 days for performance)
     let allSessions: {
         id: string;
@@ -23,12 +31,17 @@ export default async function StudyHistoryPage() {
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-        const { data } = await supabase
+        const { data, error } = await supabase
             .from("study_sessions")
             .select("*")
             .eq("user_id", user.id)
             .gte("study_date", thirtyDaysAgo.toISOString().split("T")[0])
             .order("created_at", { ascending: false });
+
+        if (error) {
+            console.error('Failed to fetch study sessions:', error);
+            // Handle error appropriately - show error UI or use fallback
+        }
 
         allSessions = data || [];
     }

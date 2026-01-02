@@ -107,9 +107,8 @@ export default function PreferencesPage() {
 
                 {/* Info Note */}
                 <p className="text-center text-sm text-ace-blue/50">
-                    Preferences are saved automatically and sync across devices.
-                </p>
-            </div>
+                    Preference saving coming soon.
+                </p>            </div>
         </div>
     );
 }

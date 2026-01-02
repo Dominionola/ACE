@@ -21,20 +21,27 @@ export function ProfileForm({ currentName }: ProfileFormProps) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!name.trim()) return;
+        if (!name.trim()) {
+            toast({ title: "Error", description: "Name cannot be empty.", variant: "destructive" });
+            return;
+        }
 
         setIsLoading(true);
-        const result = await updateProfile({ fullName: name.trim() });
-        setIsLoading(false);
+        try {
+            const result = await updateProfile({ fullName: name.trim() });
 
-        if (result.success) {
-            toast({ title: "Profile Updated", description: "Your changes have been saved." });
-            router.refresh();
-        } else {
-            toast({ title: "Error", description: result.error, variant: "destructive" });
+            if (result.success) {
+                toast({ title: "Profile Updated", description: "Your changes have been saved." });
+                router.refresh();
+            } else {
+                toast({ title: "Error", description: result.error, variant: "destructive" });
+            }
+        } catch (error) {
+            toast({ title: "Error", description: "Failed to update profile. Please try again.", variant: "destructive" });
+        } finally {
+            setIsLoading(false);
         }
     };
-
     return (
         <div className="bg-white rounded-3xl border border-ace-blue/10 shadow-sm p-6">
             <h3 className="font-serif text-lg text-ace-blue mb-4">Edit Profile</h3>
@@ -54,7 +61,7 @@ export function ProfileForm({ currentName }: ProfileFormProps) {
 
                 <Button
                     type="submit"
-                    disabled={isLoading || name === currentName}
+                    disabled={isLoading || name.trim() === currentName}
                     className="w-full rounded-full bg-ace-blue hover:bg-ace-light"
                 >
                     {isLoading ? (
@@ -68,8 +75,7 @@ export function ProfileForm({ currentName }: ProfileFormProps) {
                             Save Changes
                         </>
                     )}
-                </Button>
-            </form>
+                </Button>            </form>
         </div>
     );
 }

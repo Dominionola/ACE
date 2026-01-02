@@ -121,13 +121,17 @@ export default function ChatPage() {
 
                             <div
                                 className={`rounded-2xl px-4 py-3 max-w-[85%] text-sm leading-relaxed shadow-sm whitespace-pre-wrap ${message.role === "user"
-                                        ? "bg-gradient-to-br from-ace-blue to-ace-light text-white rounded-tr-sm"
-                                        : "bg-white text-ace-blue rounded-tl-sm border border-ace-blue/5"
+                                    ? "bg-gradient-to-br from-ace-blue to-ace-light text-white rounded-tr-sm"
+                                    : "bg-white text-ace-blue rounded-tl-sm border border-ace-blue/5"
                                     }`}
                             >
                                 {message.parts?.map((part, index) => {
                                     if (part.type === "text") {
                                         return <span key={index}>{part.text}</span>;
+                                    }
+                                    // Log unhandled part types for debugging
+                                    if (process.env.NODE_ENV === "development") {
+                                        console.warn("Unhandled message part type:", part.type);
                                     }
                                     return null;
                                 })}

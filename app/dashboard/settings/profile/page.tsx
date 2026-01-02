@@ -17,6 +17,10 @@ export default async function ProfilePage() {
         })
         : "";
 
+    // Dynamic account status based on email verification
+    const accountStatus = user?.email_confirmed_at ? "Active" : "Pending Verification";
+    const statusColor = user?.email_confirmed_at ? "text-green-600" : "text-yellow-600";
+
     return (
         <div className="container mx-auto p-6 max-w-2xl">
             <header className="mb-8">
@@ -70,7 +74,7 @@ export default async function ProfilePage() {
                         <Shield className="h-5 w-5 text-ace-blue/40" />
                         <div>
                             <p className="text-xs text-ace-blue/50 uppercase tracking-wide">Account Status</p>
-                            <p className="font-medium text-green-600">Active</p>
+                            <p className={`font-medium ${statusColor}`}>{accountStatus}</p>
                         </div>
                     </div>
                 </div>
