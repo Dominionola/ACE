@@ -109,17 +109,21 @@ export function TimerProvider({
         loadState();
     }, []);
 
-    // Save state when timer is running (debounced)
+    // Save state periodically when timer is running
     useEffect(() => {
         if (!isRunning) return;
 
-        // Clear previous timeout
-        if (saveTimeoutRef.current) {
-            clearTimeout(saveTimeoutRef.current);
-        }
+        // Save immediately on start
+        saveTimerState({
+            mode,
+            timeRemaining: timeLeft,
+            sessionsCompleted: sessions,
+            focusDuration,
+            breakDuration,
+        }).catch(error => console.error("Failed to save timer state:", error));
 
-        // Save every 5 seconds while running
-        saveTimeoutRef.current = setTimeout(async () => {
+        // Then save every 5 seconds while running
+        saveTimeoutRef.current = setInterval(async () => {
             try {
                 await saveTimerState({
                     mode,
@@ -135,11 +139,10 @@ export function TimerProvider({
 
         return () => {
             if (saveTimeoutRef.current) {
-                clearTimeout(saveTimeoutRef.current);
+                clearInterval(saveTimeoutRef.current);
             }
         };
-    }, [isRunning, mode, timeLeft, sessions, focusDuration, breakDuration]);
-
+    }, [isRunning]);
     // Keep session alive while timer is running
     useEffect(() => {
         if (!isRunning) {
@@ -199,10 +202,9 @@ export function TimerProvider({
             interval = setInterval(() => {
                 setTimeLeft(t => t - 1);
             }, 1000);
-        } else if (timeLeft === 0) {
+        } else if (isRunning && timeLeft === 0) {
             switchMode();
         }
-
         return () => clearInterval(interval);
     }, [isRunning, timeLeft, switchMode]);
 

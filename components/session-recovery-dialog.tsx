@@ -51,8 +51,7 @@ export function SessionRecoveryDialog() {
                                             {mode === "focus" ? "Focus Session" : "Break Time"}
                                         </p>
                                         <p className="text-sm text-ace-blue/60">
-                                            {mins}:{String(secs).padStart(2, "0")} remaining • {sessions} sessions completed
-                                        </p>
+                                            {mins}:{String(secs).padStart(2, "0")} remaining • {sessions} {sessions === 1 ? 'session' : 'sessions'} completed                                        </p>
                                     </div>
                                 </div>
                             </div>
