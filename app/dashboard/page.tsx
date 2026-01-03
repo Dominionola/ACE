@@ -77,24 +77,23 @@ export default async function DashboardPage() {
       </header>
 
       <main className="flex-1 p-4 sm:p-6">
-        {/* Top Row: Welcome + Timer */}
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
-          <div>
-            <h1 className="font-serif text-2xl sm:text-3xl text-ace-blue mb-1">
-              Welcome back, <span className="italic">{userName}</span>
-            </h1>
-            <p className="font-sans text-ace-blue/60 text-sm">
-              Continue your study sessions or create a new deck.
-            </p>
-          </div>
-          {/* Compact Timer at Top */}
-          <div className="w-full lg:w-auto lg:min-w-[360px]">
-            <DashboardTimer />
-          </div>
+        {/* Welcome Section - Standalone */}
+        <div className="mb-4">
+          <h1 className="font-serif text-2xl sm:text-3xl text-ace-blue mb-1">
+            Welcome back, <span className="italic">{userName}</span>
+          </h1>
+          <p className="font-sans text-ace-blue/60 text-sm">
+            Continue your study sessions or create a new deck.
+          </p>
+        </div>
+
+        {/* Timer Row - Full Width */}
+        <div className="mb-6">
+          <DashboardTimer />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          {/* Left: Stats + Quick Action */}
+          {/* Left: Stats + Today's Plan */}
           <div className="lg:col-span-2 space-y-6">
             {/* Quick Stats */}
             <div className="grid gap-4 md:grid-cols-3">
@@ -122,6 +121,7 @@ export default async function DashboardPage() {
                 </div>
               </div>
 
+              {/* Next Exam */}
               <div className="bg-white p-5 rounded-2xl border border-ace-blue/10 shadow-sm hover:shadow-lg transition-shadow">
                 <div className="flex items-center gap-3 mb-2">
                   <div className={`p-2 rounded-full ${nextExam ? "bg-orange-100 text-orange-700" : "bg-gray-100 text-gray-400"}`}>
@@ -137,26 +137,19 @@ export default async function DashboardPage() {
             </div>
 
             <TodaysPlan />
-
-            {/* Quick Action */}
-            <div className="bg-ace-blue/5 p-6 rounded-2xl border border-ace-blue/10 flex flex-col md:flex-row items-center justify-between gap-4">
-              <div>
-                <h2 className="font-serif text-xl text-ace-blue mb-1">Ready to study?</h2>
-                <p className="font-sans text-sm text-ace-blue/60">Create a new deck or start a review session.</p>
-              </div>
-              <Link
-                href="/dashboard/decks"
-                className="px-6 py-3 bg-ace-blue text-white rounded-full font-medium hover:bg-ace-light transition-all shadow-lg hover:shadow-xl flex items-center gap-2 text-sm"
-              >
-                <Plus strokeWidth={1.5} className="h-4 w-4" />
-                Create Deck
-              </Link>
-            </div>
           </div>
 
-          {/* Right: Weekly Report */}
-          <div className="lg:col-span-1">
+          {/* Right: Weekly Report + Create Deck */}
+          <div className="lg:col-span-1 space-y-4">
             <WeeklyReportCard />
+            {/* Quick Action */}
+            <Link
+              href="/dashboard/decks"
+              className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-ace-blue text-white rounded-2xl font-medium hover:bg-ace-light transition-all shadow-lg hover:shadow-xl text-sm"
+            >
+              <Plus strokeWidth={1.5} className="h-4 w-4" />
+              Create Deck
+            </Link>
           </div>
         </div>
       </main>

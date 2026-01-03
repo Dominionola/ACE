@@ -67,13 +67,13 @@ export function WeeklyReportCard() {
 
     if (!report) {
         return (
-            <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-6 rounded-3xl text-white shadow-lg relative overflow-hidden flex flex-col justify-center items-start h-full min-h-[200px]">
+            <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-5 rounded-2xl text-white shadow-lg relative overflow-hidden flex flex-col justify-center items-start">
                 <div className="relative z-10">
-                    <div className="bg-white/20 p-2 rounded-full w-fit mb-3 backdrop-blur-sm">
-                        <Sparkles className="w-5 h-5 text-yellow-300" />
+                    <div className="bg-white/20 p-2 rounded-full w-fit mb-2 backdrop-blur-sm">
+                        <Sparkles className="w-4 h-4 text-yellow-300" />
                     </div>
-                    <h3 className="font-serif text-2xl font-bold mb-2">Weekly Coaching</h3>
-                    <p className="text-indigo-100 mb-4 text-sm max-w-xs">
+                    <h3 className="font-serif text-xl font-bold mb-1">Weekly Coaching</h3>
+                    <p className="text-indigo-100 mb-3 text-xs">
                         Get AI-powered insights on your study habits and progress.
                     </p>
                     <Button

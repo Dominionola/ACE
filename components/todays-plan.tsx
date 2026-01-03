@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { getTodaysPlan } from "@/lib/actions/today";
 import { ScheduleBlock } from "@/lib/utils/schedule";
-import { Calendar, Clock, CheckCircle, ArrowRight, Loader2 } from "lucide-react";
+import { Calendar, Clock, CheckCircle, ArrowRight, Loader2, Coffee, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDuration, getSubjectColor } from "@/lib/utils/schedule";
 import { logStudySession } from "@/lib/actions/study";
@@ -70,8 +70,80 @@ export function TodaysPlan() {
     }
 
     if (!plan || plan.blocks.length === 0) {
-        // Don't show anything if no plan for today (keep dashboard clean)
-        return null;
+        // Check if user has a schedule at all (weekNumber > 0 means they have a strategy)
+        const hasScheduleSetup = plan && plan.weekNumber > 0;
+
+        if (!hasScheduleSetup) {
+            // User hasn't set up their study schedule yet - CTA to set it up
+            return (
+                <div className="bg-gradient-to-br from-ace-blue/5 to-indigo-50 p-6 rounded-2xl border border-ace-blue/10 shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                        <Calendar className="w-24 h-24 text-ace-blue" />
+                    </div>
+
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="p-2 bg-ace-blue/10 rounded-full">
+                                <Calendar className="h-5 w-5 text-ace-blue" />
+                            </div>
+                            <h2 className="font-serif text-xl text-ace-blue">Set Up Your Study Plan</h2>
+                        </div>
+
+                        <p className="text-ace-blue/70 text-sm mb-4">
+                            Create a weekly study schedule to see your daily focus here. ACE will help you stay on track!
+                        </p>
+
+                        <a
+                            href="/dashboard/schedule"
+                            className="inline-flex items-center gap-2 text-sm bg-ace-blue text-white px-4 py-2 rounded-full hover:bg-ace-light transition-colors shadow-md"
+                        >
+                            <Sparkles className="h-4 w-4" />
+                            Create Your Schedule
+                            <ArrowRight className="h-4 w-4" />
+                        </a>
+                    </div>
+                </div>
+            );
+        }
+
+        // User has schedule but today is a rest day
+        return (
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-2xl border border-green-100 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                    <Coffee className="w-24 h-24 text-green-600" />
+                </div>
+
+                <div className="relative z-10">
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="p-2 bg-green-100 rounded-full">
+                            <Sparkles className="h-5 w-5 text-green-600" />
+                        </div>
+                        <h2 className="font-serif text-xl text-green-800">Rest Day</h2>
+                    </div>
+
+                    <p className="text-green-700/80 text-sm mb-4">
+                        No study sessions scheduled. Take time to recharge – rest is essential for learning!
+                    </p>
+
+                    <div className="flex flex-wrap gap-2">
+                        <a
+                            href="/dashboard/schedule"
+                            className="inline-flex items-center gap-1.5 text-xs bg-white/80 text-green-700 px-3 py-1.5 rounded-full hover:bg-white transition-colors"
+                        >
+                            <Calendar className="h-3 w-3" />
+                            View schedule
+                        </a>
+                        <a
+                            href="/dashboard/grades"
+                            className="inline-flex items-center gap-1.5 text-xs bg-white/80 text-green-700 px-3 py-1.5 rounded-full hover:bg-white transition-colors"
+                        >
+                            <CheckCircle className="h-3 w-3" />
+                            Review progress
+                        </a>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     return (
