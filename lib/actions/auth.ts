@@ -61,37 +61,53 @@ export async function login(formData: FormData): Promise<AuthResult> {
 // ============================================
 
 export async function signup(formData: FormData): Promise<AuthResult> {
-    const supabase = await createClient();
+    try {
+        const supabase = await createClient();
 
-    const rawData = {
-        email: formData.get("email"),
-        password: formData.get("password"),
-        fullName: formData.get("fullName"),
-    };
+        const rawData = {
+            email: formData.get("email"),
+            password: formData.get("password"),
+            fullName: formData.get("fullName"),
+        };
 
-    const result = SignupSchema.safeParse(rawData);
+        const result = SignupSchema.safeParse(rawData);
 
-    if (!result.success) {
-        return { success: false, error: result.error.issues[0]?.message };
-    }
+        if (!result.success) {
+            return { success: false, error: result.error.issues[0]?.message };
+        }
 
-    const { error } = await supabase.auth.signUp({
-        email: result.data.email,
-        password: result.data.password,
-        options: {
-            data: {
-                full_name: result.data.fullName,
+        // Ensure we have a valid base URL for the redirect
+        let baseUrl = 'http://localhost:3000';
+        if (process.env.NEXT_PUBLIC_BASE_URL) {
+            baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+        } else if (process.env.VERCEL_URL) {
+            baseUrl = `https://${process.env.VERCEL_URL}`;
+        }
+
+        const { error } = await supabase.auth.signUp({
+            email: result.data.email,
+            password: result.data.password,
+            options: {
+                data: {
+                    full_name: result.data.fullName,
+                },
+                emailRedirectTo: `${baseUrl}/auth/callback`,
             },
-            emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/auth/callback`,
-        },
-    });
+        });
 
-    if (error) {
-        return { success: false, error: error.message };
+        if (error) {
+            return { success: false, error: error.message };
+        }
+
+        revalidatePath("/", "layout");
+        return { success: true };
+    } catch (error) {
+        console.error("Signup error:", error);
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : "An unexpected error occurred during signup"
+        };
     }
-
-    revalidatePath("/", "layout");
-    return { success: true };
 }
 
 // ============================================
