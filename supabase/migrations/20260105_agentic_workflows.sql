@@ -24,8 +24,7 @@ CREATE TABLE IF NOT EXISTS learning_insights (
     subject TEXT NOT NULL,
     insight_type TEXT NOT NULL CHECK (insight_type IN ('strength', 'weakness', 'pattern', 'recommendation')),
     insight_data JSONB NOT NULL, -- Structured insight data
-    confidence FLOAT DEFAULT 0.5, -- AI confidence in this insight (0-1)
-    valid_until TIMESTAMPTZ, -- When this insight should be re-evaluated
+    confidence FLOAT DEFAULT 0.5 CHECK (confidence >= 0 AND confidence <= 1), -- AI confidence in this insight (0-1)    valid_until TIMESTAMPTZ, -- When this insight should be re-evaluated
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

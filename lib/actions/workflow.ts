@@ -134,17 +134,21 @@ export async function updateSessionStage(
         }
 
         // Get current session to merge state
-        const { data: currentSession } = await supabase
+        const { data: currentSession, error: fetchError } = await supabase
             .from("study_sessions")
             .select("session_state, topics_covered")
             .eq("id", sessionId)
             .eq("user_id", user.id)
             .single();
 
+        if (fetchError) {
+            console.error("Failed to fetch session:", fetchError);
+            return { success: false, error: fetchError.message };
+        }
+
         if (!currentSession) {
             return { success: false, error: "Session not found" };
         }
-
         const mergedState = {
             ...currentSession.session_state,
             ...stateUpdates,

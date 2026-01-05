@@ -197,10 +197,9 @@ export class WorkflowEngine {
     /**
      * Complete the session
      */
-    completeSession(): void {
-        this.transitionTo('complete');
+    completeSession(): { success: boolean; error?: string } {
+        return this.transitionTo('complete');
     }
-
     /**
      * Check if session is complete
      */
