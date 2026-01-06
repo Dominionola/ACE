@@ -110,30 +110,7 @@ export async function generateFlashcards(documentId: string, deckId: string) {
     }
 }
 
-const SuperMemo2 = (quality: number, lastInterval: number, lastRepetitions: number, lastEaseFactor: number) => {
-    let interval: number;
-    let repetitions: number;
-    let easeFactor: number;
 
-    if (quality >= 3) {
-        if (lastRepetitions === 0) {
-            interval = 1;
-        } else if (lastRepetitions === 1) {
-            interval = 6;
-        } else {
-            interval = Math.round(lastInterval * lastEaseFactor);
-        }
-        repetitions = lastRepetitions + 1;
-    } else {
-        repetitions = 0;
-        interval = 1;
-    }
-
-    easeFactor = lastEaseFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
-    if (easeFactor < 1.3) easeFactor = 1.3;
-
-    return { interval, repetitions, easeFactor };
-};
 
 // ============================================
 // Manual Card Creation
@@ -185,6 +162,8 @@ export async function createCard(
 // Update Card Progress (SM-2)
 // ============================================
 
+import { AdaptiveEngine, ReviewItem } from "@/lib/learning/adaptive-engine";
+
 export async function updateCardProgress(
     cardId: string,
     quality: number // 0-5 rating
@@ -201,10 +180,13 @@ export async function updateCardProgress(
     const { data: card, error: fetchError } = await supabase
         .from("cards")
         .select(`
+            id,
             ease_factor, 
             interval, 
             repetitions, 
             deck_id,
+            last_reviewed,
+            next_review,
             decks!inner(user_id)
         `)
         .eq("id", cardId)
@@ -215,26 +197,29 @@ export async function updateCardProgress(
         return { success: false, error: "Card not found or access denied" };
     }
 
-    // Calculate new stats using SM-2
-    const { interval, repetitions, easeFactor } = SuperMemo2(
-        quality,
-        card.interval || 0,
-        card.repetitions || 0,
-        card.ease_factor || 2.5
-    );
+    // Map to ReviewItem
+    const reviewItem: ReviewItem = {
+        id: card.id,
+        topic: "general",
+        level: "intermediate",
+        lastReview: new Date(card.last_reviewed || Date.now()),
+        nextReview: new Date(card.next_review || Date.now()),
+        interval: card.interval || 0,
+        easeFactor: card.ease_factor || 2.5,
+        reviewCount: card.repetitions || 0,
+    };
 
-    // Calculate next review date
-    const nextReview = new Date();
-    nextReview.setDate(nextReview.getDate() + interval);
+    // Calculate new stats using AdaptiveEngine
+    const updatedItem = AdaptiveEngine.scheduleNextReview(reviewItem, quality);
 
     // Update DB
     const { error: updateError } = await supabase
         .from("cards")
         .update({
-            interval,
-            repetitions,
-            ease_factor: easeFactor,
-            next_review: nextReview.toISOString(),
+            interval: updatedItem.interval,
+            repetitions: updatedItem.reviewCount,
+            ease_factor: updatedItem.easeFactor,
+            next_review: updatedItem.nextReview.toISOString(),
             last_reviewed: new Date().toISOString(),
         })
         .eq("id", cardId);

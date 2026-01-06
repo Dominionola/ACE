@@ -124,6 +124,34 @@ export async function analyzeQuizPerformance(input: unknown) {
       `,
         });
 
+        // Save insights to database
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (user) {
+            // Save weakness if identified
+            if (object.keyWeakness && object.keyWeakness !== "None") {
+                await supabase.from("learning_insights").insert({
+                    user_id: user.id,
+                    subject: "quiz_analysis", // TODO: Pass actual subject/deck name
+                    insight_type: "weakness",
+                    insight_data: { description: object.keyWeakness, context: "quiz_performance" },
+                    confidence: 0.8,
+                });
+            }
+
+            // Save recommendation
+            if (object.recommendation) {
+                await supabase.from("learning_insights").insert({
+                    user_id: user.id,
+                    subject: "quiz_analysis",
+                    insight_type: "recommendation",
+                    insight_data: { description: object.recommendation, motivation: object.motivation },
+                    confidence: 0.9,
+                });
+            }
+        }
+
         return { success: true, report: object };
     } catch (error) {
         console.error("Analysis error:", error);
