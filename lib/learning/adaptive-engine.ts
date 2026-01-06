@@ -73,6 +73,9 @@ export class AdaptiveEngine {
      * @param performanceRating - 0-5 scale (0=blackout, 5=perfect recall)
      */
     static scheduleNextReview(item: ReviewItem, performanceRating: number): ReviewItem {
+        // Clamp performanceRating to valid SM-2 range
+        performanceRating = Math.max(0, Math.min(5, performanceRating));
+
         let { interval, easeFactor, reviewCount } = item;
 
         // Apply SM-2 logic
@@ -93,7 +96,6 @@ export class AdaptiveEngine {
         // Update Ease Factor
         easeFactor = easeFactor + (0.1 - (5 - performanceRating) * (0.08 + (5 - performanceRating) * 0.02));
         if (easeFactor < 1.3) easeFactor = 1.3; // Minimum EF
-
         const nextReview = new Date();
         nextReview.setDate(nextReview.getDate() + interval);
 

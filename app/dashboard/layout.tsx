@@ -5,6 +5,7 @@ import { WorkflowProvider } from "@/contexts/workflow-context";
 import { FloatingTimerIsland } from "@/components/floating-timer-island";
 import { SessionRecoveryDialog } from "@/components/session-recovery-dialog";
 import { WorkflowGuideCompact } from "@/components/workflow-guide";
+import { CoachPrompt } from "@/components/coach-prompt";
 
 export default function DashboardLayout({
     children,
@@ -26,6 +27,8 @@ export default function DashboardLayout({
                 <WorkflowGuideCompact />
                 {/* Session recovery dialog - appears when there's an interrupted session */}
                 <SessionRecoveryDialog />
+                {/* Proactive Coach Prompt */}
+                <CoachPrompt />
             </WorkflowProvider>
         </TimerProvider>
     );

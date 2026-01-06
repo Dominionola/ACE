@@ -129,29 +129,39 @@ export async function analyzeQuizPerformance(input: unknown) {
         const { data: { user } } = await supabase.auth.getUser();
 
         if (user) {
-            // Save weakness if identified
-            if (object.keyWeakness && object.keyWeakness !== "None") {
-                await supabase.from("learning_insights").insert({
-                    user_id: user.id,
-                    subject: "quiz_analysis", // TODO: Pass actual subject/deck name
-                    insight_type: "weakness",
-                    insight_data: { description: object.keyWeakness, context: "quiz_performance" },
-                    confidence: 0.8,
-                });
-            }
+            try {
+                // Save weakness if identified
+                if (object.keyWeakness && object.keyWeakness !== "None") {
+                    const { error: weaknessError } = await supabase.from("learning_insights").insert({
+                        user_id: user.id,
+                        subject: "quiz_analysis", // TODO: Pass actual subject/deck name
+                        insight_type: "weakness",
+                        insight_data: { description: object.keyWeakness, context: "quiz_performance" },
+                        confidence: 0.8,
+                    });
+                    if (weaknessError) {
+                        console.error("Failed to save weakness insight:", weaknessError);
+                    }
+                }
 
-            // Save recommendation
-            if (object.recommendation) {
-                await supabase.from("learning_insights").insert({
-                    user_id: user.id,
-                    subject: "quiz_analysis",
-                    insight_type: "recommendation",
-                    insight_data: { description: object.recommendation, motivation: object.motivation },
-                    confidence: 0.9,
-                });
+                // Save recommendation
+                if (object.recommendation) {
+                    const { error: recommendationError } = await supabase.from("learning_insights").insert({
+                        user_id: user.id,
+                        subject: "quiz_analysis",
+                        insight_type: "recommendation",
+                        insight_data: { description: object.recommendation, motivation: object.motivation },
+                        confidence: 0.9,
+                    });
+                    if (recommendationError) {
+                        console.error("Failed to save recommendation insight:", recommendationError);
+                    }
+                }
+            } catch (error) {
+                console.error("Error saving insights to database:", error);
+                // Continue execution - don't fail the entire operation
             }
         }
-
         return { success: true, report: object };
     } catch (error) {
         console.error("Analysis error:", error);

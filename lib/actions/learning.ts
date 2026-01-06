@@ -10,6 +10,10 @@ import { revalidatePath } from "next/cache";
 
 export async function submitCardReview(cardId: string, rating: number) {
     // Rating: 0 (forgot) to 5 (perfect)
+    if (rating < 0 || rating > 5) {
+        return { success: false, error: "Invalid rating: must be between 0 and 5" };
+    }
+
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -22,10 +26,11 @@ export async function submitCardReview(cardId: string, rating: number) {
         .from("cards")
         .select("*")
         .eq("id", cardId)
+        .eq("user_id", user.id)
         .single();
 
     if (fetchError || !card) {
-        return { success: false, error: "Card not found" };
+        return { success: false, error: "Card not found or access denied" };
     }
 
     // 2. Map to ReviewItem
@@ -75,10 +80,15 @@ export async function getLearnerProfile() {
     if (!user) return null;
 
     // Fetch active insights
-    const { data: insights } = await supabase
+    const { data: insights, error } = await supabase
         .from("learning_insights")
         .select("*")
         .eq("user_id", user.id);
+
+    if (error) {
+        console.error("Failed to fetch learning insights:", error);
+        return null;
+    }
 
     return {
         strengths: insights?.filter(i => i.insight_type === 'strength') || [],
