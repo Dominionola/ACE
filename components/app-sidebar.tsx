@@ -94,6 +94,10 @@ const navMain = [
         title: "Upcoming Exams",
         url: "/dashboard/schedule/exams",
       },
+      {
+        title: "Study Plans",
+        url: "/dashboard/plans",
+      },
     ],
   },
   {
