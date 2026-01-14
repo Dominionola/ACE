@@ -76,7 +76,7 @@ export function StudySchedule({ focusItems, studyDays = [0, 1, 2, 3, 4], plans =
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                     <a
-                        href="/dashboard/performance"
+                        href="/dashboard/grades"
                         className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-ace-blue text-white rounded-full font-medium hover:bg-ace-light transition-all shadow-lg"
                     >
                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -92,7 +92,7 @@ export function StudySchedule({ focusItems, studyDays = [0, 1, 2, 3, 4], plans =
                     </a>
                 </div>
                 <p className="text-xs text-ace-blue/40 mt-4">
-                    💡 Tip: Adding grades in Performance unlocks personalized schedules!
+                    💡 Tip: Adding grades in Grades & Goals unlocks personalized schedules!
                 </p>
             </div>
         );

@@ -279,8 +279,8 @@ export function WeeklyFocusEditor({
                     <p className="text-sm text-ace-blue/60 mb-2">No courses in weekly focus yet.</p>
                     <p className="text-xs text-ace-blue/40">
                         Click &quot;Add Course&quot; above, or{" "}
-                        <a href="/dashboard/performance" className="text-ace-blue underline hover:text-ace-light">
-                            add grades in Performance
+                        <a href="/dashboard/grades" className="text-ace-blue underline hover:text-ace-light">
+                            add grades in Grades & Goals
                         </a>{" "}
                         to unlock more features.
                     </p>

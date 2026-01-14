@@ -63,11 +63,11 @@ export function OnboardingToast() {
                             Welcome to ACE! 🎓
                         </h3>
                         <p className="text-sm text-ace-blue/60 mb-3">
-                            Start by adding your courses in <strong>Performance</strong> to unlock personalized study schedules and AI recommendations.
+                            Start by adding your courses in <strong>Grades & Goals</strong> to unlock personalized study schedules and AI recommendations.
                         </p>
                         <div className="flex gap-2">
                             <Link
-                                href="/dashboard/performance"
+                                href="/dashboard/grades"
                                 onClick={handleGetStarted}
                                 className="inline-flex items-center gap-1.5 px-4 py-2 bg-ace-blue text-white text-sm font-medium rounded-full hover:bg-ace-light transition-all"
                             >
