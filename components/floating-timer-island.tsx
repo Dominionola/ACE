@@ -5,27 +5,48 @@ import { Play, Pause, Brain, Coffee, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
+import { usePathname } from "next/navigation";
+
+import { motion } from "framer-motion";
+
 export function FloatingTimerIsland() {
     const timer = useTimerOptional();
     const [minimized, setMinimized] = useState(false);
+    const pathname = usePathname();
 
-    // Only show if timer is running
-    if (!timer || !timer.isRunning) {
+    // Hide on main dashboard page where the big timer exists
+    if (pathname === "/dashboard") {
         return null;
     }
 
-    const { mode, minutes, seconds, progress, toggleTimer, sessions } = timer;
+    // Show if timer exists and is either running OR has progress (paused mid-session)
+    if (!timer) return null;
+
+    const { mode, minutes, seconds, progress, toggleTimer, sessions, isRunning, focusDuration, breakDuration, timeLeft } = timer;
+
+    const totalTime = mode === "focus" ? focusDuration * 60 : breakDuration * 60;
+    const isStarted = timeLeft < totalTime;
+
+    // Only return null if it's completely reset/not started AND not running
+    if (!isRunning && !isStarted && sessions === 0) {
+        return null;
+    }
 
     if (minimized) {
         return (
-            <button
+            <motion.button
+                drag
+                dragMomentum={false}
+                whileDrag={{ scale: 1.1, cursor: "grabbing" }}
+                whileHover={{ scale: 1.1 }}
                 aria-label="Expand timer"
                 onClick={() => setMinimized(false)}
-                className={`fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 ${mode === "focus"
+                className={`fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-2xl transition-colors duration-300 cursor-grab active:cursor-grabbing ${mode === "focus"
                     ? "bg-gradient-to-br from-ace-blue to-ace-light"
                     : "bg-gradient-to-br from-green-600 to-green-500"
                     }`}
-            >                <div className="relative">
+            >
+                <div className="relative pointer-events-none">
                     {mode === "focus" ? (
                         <Brain className="h-6 w-6 text-white" />
                     ) : (
@@ -34,20 +55,24 @@ export function FloatingTimerIsland() {
                     {/* Pulsing indicator */}
                     <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-white animate-pulse" />
                 </div>
-            </button>
+            </motion.button>
         );
     }
 
     return (
-        <div
-            className={`fixed bottom-6 right-6 z-50 rounded-3xl shadow-2xl transition-all duration-500 border-2 border-white/20 backdrop-blur-sm ${mode === "focus"
+        <motion.div
+            drag
+            dragMomentum={false}
+            whileDrag={{ scale: 1.02, cursor: "grabbing" }}
+            className={`fixed bottom-6 right-6 z-50 rounded-3xl shadow-2xl transition-colors duration-500 border-2 border-white/20 backdrop-blur-sm cursor-grab active:cursor-grabbing ${mode === "focus"
                 ? "bg-gradient-to-br from-ace-blue to-ace-light"
                 : "bg-gradient-to-br from-green-600 to-green-500"
                 }`}
         >
+            {/* Drag Handle Area - Implicitly the whole card, but controls stop propagation if needed */}
             <div className="p-4 flex items-center gap-4">
                 {/* Timer Circle (compact) */}
-                <div className="relative w-16 h-16">
+                <div className="relative w-16 h-16 pointer-events-none">
                     <svg className="w-full h-full transform -rotate-90">
                         <circle
                             cx="32"
@@ -78,7 +103,7 @@ export function FloatingTimerIsland() {
                 </div>
 
                 {/* Info & Controls */}
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 pointer-events-none">
                     <div className="flex items-center gap-2 text-white">
                         {mode === "focus" ? (
                             <>
@@ -94,25 +119,29 @@ export function FloatingTimerIsland() {
                     </div>
                     <span className="text-xs text-white/70">{sessions} {sessions === 1 ? 'session' : 'sessions'}</span>                </div>
 
-                {/* Controls */}
-                <div className="flex items-center gap-2">
+                {/* Controls - e.g. pause button needs to work without triggering drag? Framer handles buttons inside draggable nicely if they capture pointer events */}
+                <div className="flex items-center gap-2" onPointerDown={(e) => e.stopPropagation()}>
                     <Button
                         onClick={toggleTimer}
                         size="icon"
-                        className="h-10 w-10 rounded-full bg-white/20 hover:bg-white/30 text-white"
+                        className="h-10 w-10 rounded-full bg-white/20 hover:bg-white/30 text-white cursor-pointer"
                     >
-                        <Pause className="h-5 w-5" />
+                        {isRunning ? (
+                            <Pause className="h-5 w-5" />
+                        ) : (
+                            <Play className="h-5 w-5 fill-current" />
+                        )}
                     </Button>
                     <Button
                         onClick={() => setMinimized(true)}
                         size="icon"
                         variant="ghost"
-                        className="h-8 w-8 rounded-full text-white/70 hover:text-white hover:bg-white/10"
+                        className="h-8 w-8 rounded-full text-white/70 hover:text-white hover:bg-white/10 cursor-pointer"
                     >
                         <X className="h-4 w-4" />
                     </Button>
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 }

@@ -201,6 +201,19 @@ export async function saveQuizResult(input: unknown) {
         return { success: false, error: "Failed to save result" };
     }
 
+    // Award XP
+    // Base 50 XP + (Score/Total * 50)
+    const xpReward = 50 + Math.round((score / total_questions) * 50);
+
+    // Dynamically import to avoid circular dependency if any (though unlikely here)
+    // Actually safe to import at top, but let's just do it here or add import at top
+    try {
+        const { awardXP } = await import("./gamification");
+        await awardXP(xpReward);
+    } catch (e) {
+        console.error("Failed to award XP:", e);
+    }
+
     revalidatePath(`/dashboard/decks/${deck_id}`);
     return { success: true };
 }

@@ -11,6 +11,7 @@ import {
     X,
     Sparkles
 } from "lucide-react";
+import Link from "next/link";
 
 /**
  * Workflow Guide Component
@@ -177,12 +178,14 @@ export function WorkflowGuideCompact() {
     const { stageInfo, sessionDuration } = workflow;
 
     return (
-        <div className="fixed bottom-20 left-6 z-40 bg-white rounded-2xl shadow-xl border border-ace-blue/10 p-3 flex items-center gap-3">
-            <div className="text-xl">{stageInfo?.icon}</div>
-            <div>
-                <p className="text-sm font-medium text-ace-blue">{stageInfo?.title}</p>
-                <p className="text-xs text-ace-blue/60">{sessionDuration} min</p>
+        <Link href="/dashboard/study/active">
+            <div className="fixed bottom-20 left-6 z-40 bg-white rounded-2xl shadow-xl border border-ace-blue/10 p-3 flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer">
+                <div className="text-xl">{stageInfo?.icon}</div>
+                <div>
+                    <p className="text-sm font-medium text-ace-blue">{stageInfo?.title}</p>
+                    <p className="text-xs text-ace-blue/60">{sessionDuration} min</p>
+                </div>
             </div>
-        </div>
+        </Link>
     );
 }

@@ -1,5 +1,6 @@
 import { getWeeklyFocus } from "@/lib/actions/strategy";
 import { getUniqueSubjects, getUniqueSemesters } from "@/lib/actions/grade";
+import { getActivePlans } from "@/lib/actions/plans";
 import { StudySchedule } from "@/components/study-schedule";
 import { WeeklyFocusEditor } from "@/components/weekly-focus-editor";
 import { Calendar } from "lucide-react";
@@ -10,6 +11,7 @@ export default async function SchedulePage() {
     const currentSemester = semesters[0] || "Fall 2024";
 
     const focusItems = await getWeeklyFocus(currentSemester);
+    const plans = await getActivePlans();
     const subjectsData = await getUniqueSubjects();
     const subjects = subjectsData.map(s => s.value);
 
@@ -42,7 +44,7 @@ export default async function SchedulePage() {
                 {/* Right: Schedule View */}
                 <div className="lg:col-span-2">
                     <div className="bg-white p-6 rounded-3xl border border-ace-blue/10 shadow-sm">
-                        <StudySchedule focusItems={focusItems} />
+                        <StudySchedule focusItems={focusItems} plans={plans} />
                     </div>
                 </div>
             </div>

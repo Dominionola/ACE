@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { convertToModelMessages, streamText, UIMessage } from "ai";
+import { convertToModelMessages, streamText, UIMessage, tool } from "ai";
+import { z } from "zod";
 
 const google = createGoogleGenerativeAI({
     apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
@@ -60,13 +61,15 @@ Help students with:
 - Creating study plans and schedules
 
 Be friendly, encouraging, and concise. Use markdown formatting when helpful.
-If asked about specific subject content (like math problems or science concepts), provide helpful explanations.
-Always encourage active learning and effective study habits.`;
+If asked for a specific subject content (like math problems or science concepts), provide helpful explanations.
+Always encourage active learning and effective study habits.
+
+If the user provides a document or text (like a resume or essay) and asks for help, analyze it and provide feedback.`;
         }
 
         // Stream response using Gemini
         const result = streamText({
-            model: google("gemini-2.5-flash-lite"),
+            model: google("gemini-2.0-flash"),
             messages: convertToModelMessages(messages),
             system: systemPrompt,
         });

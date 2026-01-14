@@ -31,6 +31,7 @@ interface TimerContextType extends TimerState {
     interruptedSessionData: InterruptedSessionData | null;
     resumeSession: () => void;
     discardSession: () => void;
+    startSession: (minutes: number) => void;
 }
 
 const TimerContext = createContext<TimerContextType | null>(null);
@@ -55,11 +56,13 @@ interface TimerProviderProps {
 
 export function TimerProvider({
     children,
-    focusDuration = 25,
-    breakDuration = 5,
+    focusDuration: initialFocusDuration = 25,
+    breakDuration: initialBreakDuration = 5,
 }: TimerProviderProps) {
+    const [focusDuration, setFocusDuration] = useState(initialFocusDuration);
+    const [breakDuration, setBreakDuration] = useState(initialBreakDuration);
     const [mode, setMode] = useState<TimerMode>("focus");
-    const [timeLeft, setTimeLeft] = useState(focusDuration * 60);
+    const [timeLeft, setTimeLeft] = useState(initialFocusDuration * 60);
     const [isRunning, setIsRunning] = useState(false);
     const [sessions, setSessions] = useState(0);
     const [hasInterruptedSession, setHasInterruptedSession] = useState(false);
@@ -243,7 +246,7 @@ export function TimerProvider({
             setSessions(interruptedState.sessions);
             setHasInterruptedSession(false);
             setInterruptedState(null);
-            // Don't auto-start, let user press play
+            setIsRunning(true);
         }
     };
 
@@ -251,6 +254,21 @@ export function TimerProvider({
         setHasInterruptedSession(false);
         setInterruptedState(null);
         await clearTimerState();
+    };
+
+    const startSession = (minutes: number) => {
+        setFocusDuration(minutes);
+        setTimeLeft(minutes * 60);
+        setMode("focus");
+        setIsRunning(true);
+        // Save state immediately
+        saveTimerState({
+            mode: "focus",
+            timeRemaining: minutes * 60,
+            sessionsCompleted: sessions,
+            focusDuration: minutes,
+            breakDuration,
+        });
     };
 
     return (
@@ -272,6 +290,7 @@ export function TimerProvider({
                 interruptedSessionData: interruptedState,
                 resumeSession,
                 discardSession,
+                startSession,
             }}
         >
             {children}

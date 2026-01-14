@@ -23,6 +23,12 @@ CREATE TABLE IF NOT EXISTS user_badges (
 ALTER TABLE user_stats ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_badges ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies to ensure idempotency
+DROP POLICY IF EXISTS "Users can view own stats" ON user_stats;
+DROP POLICY IF EXISTS "Users can update own stats" ON user_stats;
+DROP POLICY IF EXISTS "Users can view own badges" ON user_badges;
+DROP POLICY IF EXISTS "Users can insert own badges" ON user_badges;
+
 CREATE POLICY "Users can view own stats" ON user_stats FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can update own stats" ON user_stats FOR UPDATE USING (auth.uid() = user_id);
 -- Normally updates happen via server actions/triggers, but explicit update policy is good for now.

@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import * as React from "react"
 import {
   BookOpen,
@@ -147,9 +148,9 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="/dashboard" className="flex items-center">
+              <Link href="/dashboard" className="flex items-center">
                 <Logo className="h-8 w-8" />
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -162,10 +163,10 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
               asChild
               className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full justify-center"
             >
-              <a href="/dashboard/decks/new" className="flex items-center gap-2">
+              <Link href="/dashboard/decks/new" className="flex items-center gap-2">
                 <Plus strokeWidth={1.5} className="h-4 w-4" />
                 <span>Create Deck</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

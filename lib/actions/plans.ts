@@ -92,8 +92,9 @@ export async function generateStudyPlan(request: CreatePlanRequest) {
         }
 
         // 4. Save Milestones
+        const baseDate = new Date();
         const milestonesToInsert = object.milestones.map((m, index) => {
-            const dueDate = new Date();
+            const dueDate = new Date(baseDate);
             dueDate.setDate(dueDate.getDate() + m.days_from_start);
 
             return {
@@ -105,17 +106,15 @@ export async function generateStudyPlan(request: CreatePlanRequest) {
                 resources: m.resources || [],
             };
         });
-
         const { error: milestoneError } = await supabase
             .from("plan_milestones")
             .insert(milestonesToInsert);
 
         if (milestoneError) {
             console.error("Failed to create milestones:", milestoneError);
-            // Optionally delete the plan if milestones fail?
+            await supabase.from("study_plans").delete().eq("id", plan.id);
             return { success: false, error: "Failed to create milestones" };
         }
-
         revalidatePath("/dashboard/plans");
         return { success: true, planId: plan.id };
 
@@ -161,7 +160,18 @@ export async function updateMilestoneStatus(milestoneId: string, isCompleted: bo
     if (!user) return { success: false };
 
     // Verify ownership via RLS policies (implicit in operation if policy exists)
-    // But direct update is safest if we assume RLS works
+    // Verify ownership by joining with study_plans
+    const { data: milestone } = await supabase
+        .from("plan_milestones")
+        .select("id, plan_id, study_plans!inner(user_id)")
+        .eq("id", milestoneId)
+        .eq("study_plans.user_id", user.id)
+        .single();
+
+    if (!milestone) {
+        return { success: false, error: "Milestone not found or access denied" };
+    }
+
     const { error } = await supabase
         .from("plan_milestones")
         .update({ is_completed: isCompleted })

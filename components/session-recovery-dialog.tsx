@@ -12,8 +12,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Clock, Play, Trash2, Brain, Coffee } from "lucide-react";
 
+import { useToast } from "@/hooks/use-toast";
+
 export function SessionRecoveryDialog() {
     const timer = useTimer();
+    const { toast } = useToast();
 
     if (!timer.hasInterruptedSession || !timer.interruptedSessionData) {
         return null;
@@ -24,6 +27,14 @@ export function SessionRecoveryDialog() {
     // Calculate remaining time display
     const mins = Math.floor(timeLeft / 60);
     const secs = timeLeft % 60;
+
+    const handleResume = () => {
+        timer.resumeSession();
+        toast({
+            title: "Session Resumed",
+            description: "Welcome back! Let's get focused.",
+        });
+    };
 
     return (
         <Dialog open={timer.hasInterruptedSession} onOpenChange={() => { }}>
@@ -69,7 +80,7 @@ export function SessionRecoveryDialog() {
                         Discard
                     </Button>
                     <Button
-                        onClick={timer.resumeSession}
+                        onClick={handleResume}
                         className="flex items-center gap-2 bg-ace-blue hover:bg-ace-light"
                     >
                         <Play className="h-4 w-4" />

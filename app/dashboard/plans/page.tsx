@@ -8,8 +8,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Map as MapIcon } from "lucide-react";
 
 export default async function PlansPage() {
-    const plans = await getActivePlans();
-
     return (
         <div className="flex flex-col h-screen bg-cream-50">
             {/* Header */}
@@ -37,21 +35,28 @@ export default async function PlansPage() {
 
                     {/* Active Plans */}
                     <Suspense fallback={<PlansSkeleton />}>
-                        {plans.length > 0 ? (
-                            <div className="space-y-8">
-                                {plans.map((plan: any) => (
-                                    <StudyPlanView key={plan.id} plan={plan} />
-                                ))}
-                            </div>
-                        ) : (
-                            <EmptyState />
-                        )}
+                        <PlansContent />
                     </Suspense>
                 </div>
             </main>
         </div>
     );
 }
+
+async function PlansContent() {
+    const plans = await getActivePlans();
+
+    return plans.length > 0 ? (
+        <div className="space-y-8">
+            {plans.map((plan: any) => (
+                <StudyPlanView key={plan.id} plan={plan} />
+            ))}
+        </div>
+    ) : (
+        <EmptyState />
+    );
+}
+
 
 function EmptyState() {
     return (

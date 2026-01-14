@@ -16,9 +16,10 @@ import { GoogleCalendarSync } from "@/components/google-calendar-sync";
 interface StudyScheduleProps {
     focusItems: FocusItem[];
     studyDays?: number[];
+    plans?: any[];
 }
 
-export function StudySchedule({ focusItems, studyDays = [0, 1, 2, 3, 4] }: StudyScheduleProps) {
+export function StudySchedule({ focusItems, studyDays = [0, 1, 2, 3, 4], plans = [] }: StudyScheduleProps) {
     const currentWeek = getWeekNumber();
     const [selectedWeek, setSelectedWeek] = useState(currentWeek);
 
@@ -27,12 +28,46 @@ export function StudySchedule({ focusItems, studyDays = [0, 1, 2, 3, 4] }: Study
         [focusItems, studyDays, selectedWeek]
     );
 
-    if (focusItems.length === 0) {
+    // Extract milestones for the selected week
+    const weeklyMilestones = useMemo(() => {
+        const { start, end } = schedule.dateRange;
+        // Simple string comparison for this week logic relying on the formatShortDate is risky across years,
+        // but let's trust the util for now or better, parse dates.
+        // Actually, let's use the `schedule.days` to match dates if possible or use proper date objects.
+        // Since generateWeeklySchedule returns ranges as strings, we might need to be careful.
+        // Let's rely on date objects for accurate filtering.
+
+        const weekStart = new Date(); // Getting rough week start
+        // To accurately place milestones, we need the actual date of each day card.
+        // The generator doesn't return date objects per day, only day names.
+        // We can infer dates based on week number and day index.
+
+        const milestonesByDay: Record<string, any[]> = {};
+
+        plans.forEach(plan => {
+            if (!plan.plan_milestones) return;
+            plan.plan_milestones.forEach((m: any) => {
+                const dueDate = new Date(m.date_due);
+                const dueWeek = getWeekNumber(dueDate);
+
+                if (dueWeek === selectedWeek) {
+                    // Match to day name
+                    const dayName = dueDate.toLocaleDateString('en-US', { weekday: 'long' }); // "Monday"
+                    if (!milestonesByDay[dayName]) milestonesByDay[dayName] = [];
+                    milestonesByDay[dayName].push({ ...m, planTitle: plan.title });
+                }
+            });
+        });
+
+        return milestonesByDay;
+    }, [plans, selectedWeek, schedule]);
+
+    if (focusItems.length === 0 && plans.length === 0) {
         return (
             <div className="text-center py-8 text-ace-blue/40">
                 <Calendar className="h-10 w-10 mx-auto mb-3 opacity-50" />
-                <p className="font-serif italic">No weekly focus set yet.</p>
-                <p className="text-sm mt-1">Add courses to your weekly focus to generate a schedule.</p>
+                <p className="font-serif italic">No schedule data available.</p>
+                <p className="text-sm mt-1">Add courses to your weekly focus or create a study plan.</p>
             </div>
         );
     }
@@ -116,7 +151,7 @@ export function StudySchedule({ focusItems, studyDays = [0, 1, 2, 3, 4] }: Study
                 {schedule.days.map((day) => (
                     <div
                         key={day.day}
-                        className={`rounded-xl p-3 min-h-[140px] transition-all ${day.blocks.length > 0
+                        className={`rounded-xl p-3 min-h-[140px] transition-all flex flex-col ${day.blocks.length > 0
                             ? "bg-white border border-ace-blue/10 shadow-sm"
                             : "bg-cream-50 border border-cream-200"
                             }`}
@@ -131,8 +166,23 @@ export function StudySchedule({ focusItems, studyDays = [0, 1, 2, 3, 4] }: Study
                             )}
                         </div>
 
+                        {/* Milestones */}
+                        {weeklyMilestones[day.day] && (
+                            <div className="mb-2 space-y-1">
+                                {weeklyMilestones[day.day].map((ms: any, i: number) => (
+                                    <div key={i} className={`p-1.5 rounded text-[10px] leading-tight border ${ms.is_completed ? "bg-green-50 border-green-200 text-green-700" : "bg-amber-50 border-amber-200 text-amber-700"}`}>
+                                        <div className="flex items-center gap-1 mb-0.5">
+                                            <div className={`w-1.5 h-1.5 rounded-full ${ms.is_completed ? "bg-green-500" : "bg-amber-500"}`} />
+                                            <span className="font-semibold truncate">{ms.planTitle}</span>
+                                        </div>
+                                        <span className="block truncate opacity-90">{ms.title}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
                         {/* Study Blocks */}
-                        <div className="space-y-1.5">
+                        <div className="space-y-1.5 flex-1">
                             {day.blocks.length > 0 ? (
                                 day.blocks.map((block, idx) => (
                                     <div
@@ -149,7 +199,7 @@ export function StudySchedule({ focusItems, studyDays = [0, 1, 2, 3, 4] }: Study
                                     </div>
                                 ))
                             ) : (
-                                <p className="text-xs text-center text-ace-blue/30 py-4">Rest</p>
+                                !weeklyMilestones[day.day] && <p className="text-xs text-center text-ace-blue/30 py-4">Rest</p>
                             )}
                         </div>
                     </div>

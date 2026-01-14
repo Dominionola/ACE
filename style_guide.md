@@ -93,3 +93,26 @@ The project uses a set of custom CSS animations defined in `globals.css`.
 
 ### Implementation Note
 All styles are implemented via Tailwind CSS v4 in `app/globals.css`. Font families are loaded via `next/font/google` in `app/layout.tsx`.
+
+
+# AI BEHAVIOR RULES FOR "ACE" PROJECT
+
+## 1. Visual Aesthetics (NON-NEGOTIABLE)
+- **Vibe:** Dark Academia. Clean, intellectual, focused.
+- **Backgrounds:** ALWAYS use `bg-cream-50` for pages. NEVER use pure white (`#fff`) or gray (`bg-gray-50`) for page backgrounds.
+- **Typography:** - Headings (H1-H4) MUST use `font-serif` (Newsreader).
+  - Body text MUST use `font-sans` (Inter).
+  - Use `text-ace-blue` for primary text.
+- **Shapes:**
+  - Buttons: MUST be `rounded-full` (Pill shape).
+  - Cards/Containers: MUST be `rounded-3xl` (Large curves).
+  - Borders: Use `border-ace-blue/10` for subtle separation.
+
+## 2. Component Construction
+- **Base:** Use Shadcn/UI components, BUT you must override the styling to match the rules above.
+- **Icons:** Use `lucide-react`. Set `strokeWidth={1.5}` for a thinner, elegant look.
+- **Animation:** Use the custom animations in `globals.css` (`animate-fade-in-up`) for entry transitions.
+
+## 3. Tech Constraints
+- Tailwind v4 is active. Do NOT generate a `tailwind.config.js`. Use CSS variables.
+- Next.js 15 App Router. Use `await params` in page props.

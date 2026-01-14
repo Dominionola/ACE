@@ -4,6 +4,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
+import { GamificationDashboard } from "@/components/gamification/gamification-dashboard";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Plus, BookOpen, Calendar, Flame } from "lucide-react";
@@ -14,6 +15,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getUpcomingExams } from "@/lib/actions/study";
 import { getUserStats } from "@/lib/actions/gamification";
+import { ActiveSessionCard } from "@/components/active-session-card";
 
 // Force dynamic rendering - this page requires user auth
 export const dynamic = "force-dynamic";
@@ -53,10 +55,11 @@ export default async function DashboardPage() {
     nextExamDate = "None";
   }
 
-  // Get streak
+  // Get streak & stats
   let streak = 0;
+  let stats: any = null;
   try {
-    const stats = await getUserStats();
+    stats = await getUserStats();
     streak = stats?.current_streak || 0;
   } catch {
     streak = 0;
@@ -86,6 +89,9 @@ export default async function DashboardPage() {
             Continue your study sessions or create a new deck.
           </p>
         </div>
+
+        {/* Active Session Card - Resumable */}
+        <ActiveSessionCard />
 
         {/* Timer Row - Full Width */}
         <div className="mb-6">
@@ -139,8 +145,10 @@ export default async function DashboardPage() {
             <TodaysPlan />
           </div>
 
-          {/* Right: Weekly Report + Create Deck */}
+
+          {/* Right: Weekly Report + Gamification + Create Deck */}
           <div className="lg:col-span-1 space-y-4">
+            <GamificationDashboard stats={stats} earnedBadges={stats?.badges || []} />
             <WeeklyReportCard />
             {/* Quick Action */}
             <Link

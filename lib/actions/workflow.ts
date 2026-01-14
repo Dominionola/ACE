@@ -236,6 +236,19 @@ export async function completeSession(
             return { success: false, error: error.message };
         }
 
+        // Update Gamification Stats
+        try {
+            const { updateGamificationStats } = await import("./gamification");
+            // Determine duration to reward
+            // If durationMinutes is very large (left open), cap it, e.g., 120 mins
+            const rewardMinutes = Math.min(durationMinutes, 120);
+            if (rewardMinutes > 0) {
+                await updateGamificationStats(rewardMinutes);
+            }
+        } catch (e) {
+            console.error("Failed to update gamification stats:", e);
+        }
+
         return { success: true };
     } catch (error) {
         console.error("Complete session error:", error);

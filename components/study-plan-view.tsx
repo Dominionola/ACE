@@ -9,10 +9,23 @@ import { updateMilestoneStatus } from "@/lib/actions/plans";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
-interface StudyPlanViewProps {
-    plan: any; // Type from DB
+interface Milestone {
+    id: string;
+    title: string;
+    description: string;
+    date_due: string;
+    is_completed: boolean;
 }
 
+interface Plan {
+    title: string;
+    target_date: string;
+    plan_milestones: Milestone[];
+}
+
+interface StudyPlanViewProps {
+    plan: Plan;
+}
 export function StudyPlanView({ plan }: StudyPlanViewProps) {
     // We maintain local state for optimistic updates
     const [milestones, setMilestones] = useState(plan.plan_milestones);

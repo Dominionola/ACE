@@ -2,16 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-
-// Badge Definitions (not exported - use server files can only export async functions)
-const BADGES = [
-    { code: "FIRST_SESSION", name: "First Step", description: "Logged your first study session", icon: "🌱" },
-    { code: "STREAK_3", name: "Momentum", description: "3-day study streak", icon: "🔥" },
-    { code: "STREAK_7", name: "Unstoppable", description: "7-day study streak", icon: "🚀" },
-    { code: "FOCUS_MASTER", name: "Focus Master", description: "Studied for 1000+ minutes total", icon: "🧠" },
-    { code: "NIGHT_OWL", name: "Night Owl", description: "Logged a session after 10 PM", icon: "🦉" },
-    { code: "EARLY_BIRD", name: "Early Bird", description: "Logged a session before 7 AM", icon: "🌅" },
-];
+import { BADGES, UserStats } from "@/lib/gamification";
 
 export async function getUserStats() {
     const supabase = await createClient();
@@ -148,4 +139,24 @@ export async function updateGamificationStats(minutes: number) {
         xpGained,
         newBadges: earnedBadges.map(code => BADGES.find(b => b.code === code))
     };
+}
+
+export async function awardXP(amount: number) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false };
+
+    const { data: stats } = await supabase.from("user_stats").select("*").eq("user_id", user.id).single();
+    if (!stats) return { success: false };
+
+    const newXp = stats.xp + amount;
+    const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
+
+    await supabase.from("user_stats").update({
+        xp: newXp,
+        level: newLevel
+    }).eq("user_id", user.id);
+
+    revalidatePath("/dashboard");
+    return { success: true, newXP: newXp, newLevel };
 }
