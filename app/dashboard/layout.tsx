@@ -1,5 +1,6 @@
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebarWrapper } from "@/components/app-sidebar-wrapper";
+import { OnboardingToast } from "@/components/onboarding-toast";
 
 export default function DashboardLayout({
     children,
@@ -12,6 +13,8 @@ export default function DashboardLayout({
             <SidebarInset className="bg-cream-50">
                 {children}
             </SidebarInset>
+            <OnboardingToast />
         </SidebarProvider>
     );
 }
+

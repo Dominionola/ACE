@@ -46,6 +46,7 @@ export function WeeklyFocusEditor({
     const [focusItems, setFocusItems] = useState<FocusItem[]>(initialFocus);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedSubject, setSelectedSubject] = useState("");
+    const [customSubject, setCustomSubject] = useState("");
     const [hours, setHours] = useState("2");
     const [isSaving, setIsSaving] = useState(false);
     const { toast } = useToast();
@@ -57,10 +58,21 @@ export function WeeklyFocusEditor({
     );
 
     const handleAddSubject = () => {
-        if (!selectedSubject || !hours) return;
+        const subjectToAdd = customSubject.trim() || selectedSubject;
+        if (!subjectToAdd || !hours) return;
+
+        // Check for duplicates
+        if (focusItems.some(f => f.subject.toLowerCase() === subjectToAdd.toLowerCase())) {
+            toast({
+                title: "Already Added",
+                description: `${subjectToAdd} is already in your weekly focus.`,
+                variant: "destructive",
+            });
+            return;
+        }
 
         const newItem: FocusItem = {
-            subject: selectedSubject,
+            subject: subjectToAdd,
             hours: parseFloat(hours),
         };
 
@@ -70,12 +82,13 @@ export function WeeklyFocusEditor({
 
         // Reset and close
         setSelectedSubject("");
+        setCustomSubject("");
         setHours("2");
         setIsDialogOpen(false);
 
         toast({
             title: "Course Added!",
-            description: `${selectedSubject} added to your weekly focus.`,
+            description: `${subjectToAdd} added to your weekly focus.`,
         });
     };
 
@@ -133,7 +146,6 @@ export function WeeklyFocusEditor({
                                 variant="outline"
                                 size="sm"
                                 className="rounded-full gap-1 text-ace-blue hover:bg-ace-blue hover:text-white"
-                                disabled={unusedSubjects.length === 0}
                             >
                                 <Plus className="h-4 w-4" />
                                 Add Course
@@ -143,25 +155,42 @@ export function WeeklyFocusEditor({
                             <DialogHeader>
                                 <DialogTitle>Add Course to Weekly Focus</DialogTitle>
                                 <DialogDescription>
-                                    Select a course and set the weekly study hours.
+                                    {unusedSubjects.length > 0
+                                        ? "Select a course or enter a custom name."
+                                        : "Enter your course name and set weekly study hours."}
                                 </DialogDescription>
                             </DialogHeader>
 
                             <div className="space-y-4 py-4">
                                 <div className="space-y-2">
-                                    <Label>Select Course</Label>
-                                    <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Choose a course..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {unusedSubjects.map((subject) => (
-                                                <SelectItem key={subject} value={subject}>
-                                                    {subject}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <Label>Course Name</Label>
+                                    {unusedSubjects.length > 0 ? (
+                                        <>
+                                            <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Choose from your courses..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {unusedSubjects.map((subject) => (
+                                                        <SelectItem key={subject} value={subject}>
+                                                            {subject}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <p className="text-xs text-ace-blue/40">Or enter a custom name below:</p>
+                                        </>
+                                    ) : null}
+                                    <Input
+                                        type="text"
+                                        value={customSubject}
+                                        onChange={(e) => {
+                                            setCustomSubject(e.target.value);
+                                            if (e.target.value) setSelectedSubject("");
+                                        }}
+                                        placeholder="e.g., Calculus II, Physics 101"
+                                        className="mt-2"
+                                    />
                                 </div>
 
                                 <div className="space-y-2">
@@ -180,7 +209,7 @@ export function WeeklyFocusEditor({
                             <DialogFooter>
                                 <Button
                                     onClick={handleAddSubject}
-                                    disabled={!selectedSubject || !hours}
+                                    disabled={(!selectedSubject && !customSubject.trim()) || !hours}
                                     className="rounded-full bg-ace-blue hover:bg-ace-light"
                                 >
                                     Add to Focus
@@ -246,9 +275,15 @@ export function WeeklyFocusEditor({
                     </div>
                 </div>
             ) : (
-                <div className="text-center py-6 text-ace-blue/40">
-                    <p className="text-sm">No courses in weekly focus yet.</p>
-                    <p className="text-xs mt-1">Click "Add Course" to get started.</p>
+                <div className="text-center py-6">
+                    <p className="text-sm text-ace-blue/60 mb-2">No courses in weekly focus yet.</p>
+                    <p className="text-xs text-ace-blue/40">
+                        Click &quot;Add Course&quot; above, or{" "}
+                        <a href="/dashboard/performance" className="text-ace-blue underline hover:text-ace-light">
+                            add grades in Performance
+                        </a>{" "}
+                        to unlock more features.
+                    </p>
                 </div>
             )}
         </div>

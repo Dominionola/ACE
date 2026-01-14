@@ -64,10 +64,36 @@ export function StudySchedule({ focusItems, studyDays = [0, 1, 2, 3, 4], plans =
 
     if (focusItems.length === 0 && plans.length === 0) {
         return (
-            <div className="text-center py-8 text-ace-blue/40">
-                <Calendar className="h-10 w-10 mx-auto mb-3 opacity-50" />
-                <p className="font-serif italic">No schedule data available.</p>
-                <p className="text-sm mt-1">Add courses to your weekly focus or create a study plan.</p>
+            <div className="text-center py-10 px-6">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-ace-blue/10 rounded-2xl mb-4">
+                    <Calendar className="h-8 w-8 text-ace-blue" />
+                </div>
+                <h3 className="font-serif text-xl font-semibold text-ace-blue mb-2">
+                    No schedule data available.
+                </h3>
+                <p className="text-ace-blue/60 max-w-sm mx-auto mb-6">
+                    Add courses to your weekly focus or create a study plan.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <a
+                        href="/dashboard/performance"
+                        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-ace-blue text-white rounded-full font-medium hover:bg-ace-light transition-all shadow-lg"
+                    >
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Add My First Course
+                    </a>
+                    <a
+                        href="/dashboard/plans"
+                        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-ace-blue/20 text-ace-blue rounded-full font-medium hover:bg-ace-blue/5 transition-all"
+                    >
+                        Create Study Plan
+                    </a>
+                </div>
+                <p className="text-xs text-ace-blue/40 mt-4">
+                    💡 Tip: Adding grades in Performance unlocks personalized schedules!
+                </p>
             </div>
         );
     }
