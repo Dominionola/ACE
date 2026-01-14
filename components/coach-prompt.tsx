@@ -14,11 +14,14 @@ export function CoachPrompt() {
     const [isVisible, setIsVisible] = useState(false);
     const pathname = usePathname();
 
+    // Only show on dashboard routes (authenticated area)
+    const isDashboardRoute = pathname.startsWith("/dashboard");
     // Don't show on specific pages (e.g. while taking a quiz)
     const isRestrictedPage = pathname.includes("/study/") || pathname.includes("/quiz/");
 
     useEffect(() => {
-        if (isRestrictedPage) {
+        // Only run on dashboard routes, not restricted pages
+        if (!isDashboardRoute || isRestrictedPage) {
             setIsVisible(false);
             return;
         }
@@ -36,7 +39,7 @@ export function CoachPrompt() {
         const interval = setInterval(checkCoach, 5 * 60 * 1000); // Every 5 mins
 
         return () => clearInterval(interval);
-    }, [pathname, isRestrictedPage]);
+    }, [pathname, isDashboardRoute, isRestrictedPage]);
 
     const handleDismiss = () => {
         setIsVisible(false);
@@ -80,7 +83,7 @@ export function CoachPrompt() {
 
                                 <div className="flex gap-2">
                                     {prompt.actionLabel && prompt.actionUrl && (
-                                        <Link href={prompt.actionUrl} className="flex-1">
+                                        <Link href={prompt.actionUrl} className="flex-1" onClick={handleDismiss}>
                                             <Button size="sm" className="w-full text-xs rounded-full bg-ace-blue hover:bg-ace-light text-white h-8">
                                                 {prompt.actionLabel}
                                             </Button>
