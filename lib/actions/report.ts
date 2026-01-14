@@ -45,6 +45,14 @@ export async function generateWeeklyReport() {
             subjectBreakdown[s.subject_name] = (subjectBreakdown[s.subject_name] || 0) + s.duration_minutes;
         });
 
+        // 4.5 Check for minimum data requirements
+        if (totalSessions === 0 && totalMinutes === 0) {
+            return {
+                success: false,
+                error: "Not enough data yet! Complete some study sessions first to generate your coaching report."
+            };
+        }
+
         // 5. Generate AI Report
         const prompt = `
         You are an elite academic coach. Analyze this student's weekly progress and generate a brutally honest but encouraging report.

@@ -54,6 +54,17 @@ export function FileUpload({ deckId, onUploadComplete }: FileUploadProps) {
         maxSize: 10 * 1024 * 1024, // 10MB
         maxFiles: 1,
         disabled: isUploading,
+        onDropRejected: (fileRejections) => {
+            const rejection = fileRejections[0];
+            if (rejection?.errors[0]?.code === 'file-too-large') {
+                setError("File is too large. Please upload a PDF smaller than 10MB.");
+            } else if (rejection?.errors[0]?.code === 'file-invalid-type') {
+                setError("Invalid file type. Please upload a PDF file.");
+            } else {
+                setError(rejection?.errors[0]?.message || "Invalid file.");
+            }
+            setUploadStatus("error");
+        }
     });
 
     return (

@@ -44,7 +44,24 @@ export function ReportCardUploader() {
             'image/jpeg': ['.jpg', '.jpeg'],
             'application/pdf': ['.pdf']
         },
-        maxFiles: 1
+        maxFiles: 1,
+        maxSize: 10 * 1024 * 1024, // 10MB limit
+        onDropRejected: (fileRejections) => {
+            const rejection = fileRejections[0];
+            if (rejection?.errors[0]?.code === 'file-too-large') {
+                toast({
+                    title: "File Too Large",
+                    description: "Please upload a file smaller than 10MB.",
+                    variant: "destructive"
+                });
+            } else {
+                toast({
+                    title: "Invalid File",
+                    description: rejection?.errors[0]?.message || "Please upload a valid file.",
+                    variant: "destructive"
+                });
+            }
+        }
     });
 
     return (
@@ -94,7 +111,7 @@ export function ReportCardUploader() {
                             </div>
                             <div>
                                 <p className="font-serif text-lg text-ace-blue">Click to upload or drag & drop</p>
-                                <p className="text-xs uppercase tracking-widest font-bold mt-1 opacity-60">PDF or Image (PNG, JPG)</p>
+                                <p className="text-xs uppercase tracking-widest font-bold mt-1 opacity-60">PDF or Image (PNG, JPG) • Max 10MB</p>
                             </div>
                         </div>
                     )}

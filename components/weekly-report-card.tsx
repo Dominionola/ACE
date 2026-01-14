@@ -53,8 +53,8 @@ export function WeeklyReportCard() {
             getLatestWeeklyReport().then(setReport);
         } else {
             toast({
-                title: "Error",
-                description: "Failed to generate report. Try again later.",
+                title: "Can't Generate Report",
+                description: result.error || "Failed to generate report. Try again later.",
                 variant: "destructive",
             });
         }

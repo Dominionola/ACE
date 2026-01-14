@@ -4,10 +4,6 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { TimerProvider } from "@/contexts/timer-context";
 import { WorkflowProvider } from "@/contexts/workflow-context";
-import { FloatingTimerIsland } from "@/components/floating-timer-island";
-import { SessionRecoveryDialog } from "@/components/session-recovery-dialog";
-import { WorkflowGuideCompact } from "@/components/workflow-guide";
-import { CoachPrompt } from "@/components/coach-prompt";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -40,11 +36,6 @@ export default function RootLayout({
         <TimerProvider>
           <WorkflowProvider>
             {children}
-            {/* Global Floating Elements */}
-            <FloatingTimerIsland />
-            <WorkflowGuideCompact />
-            <SessionRecoveryDialog />
-            <CoachPrompt />
             <Toaster />
           </WorkflowProvider>
         </TimerProvider>
@@ -52,3 +43,4 @@ export default function RootLayout({
     </html>
   );
 }
+
