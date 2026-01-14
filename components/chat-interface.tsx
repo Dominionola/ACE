@@ -1,7 +1,7 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport, ToolInvocation } from "ai";
+import { DefaultChatTransport } from "ai";
 import { Send, Bot, Loader2, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -110,41 +110,39 @@ export function ChatInterface({ documentId, documentName }: ChatInterfaceProps) 
                                 }`}
                         >
                             {/* Render message parts */}
-                            {message.toolInvocations && console.log("Message Tool Invocations:", message.toolInvocations)}
                             {message.parts?.map((part, index) => {
                                 if (part.type === "text") {
                                     return <span key={index}>{part.text}</span>;
                                 }
-                                return null;
-                            })}
 
-                            {/* Render Tool Invocations (Widgets) */}
-                            {/* @ts-ignore - toolInvocations exists on Message in runtime */}
-                            {message.toolInvocations?.map((toolInvocation: any) => {
-                                const { toolName, toolCallId, args } = toolInvocation;
+                                // Handle tool invocations (new API)
+                                if (part.type === "tool-invocation") {
+                                    const { toolInvocation } = part as unknown as { toolInvocation: { toolName: string; toolCallId: string; args: Record<string, unknown> } };
+                                    const { toolName, toolCallId, args } = toolInvocation;
 
-                                if (toolName === "startQuiz") {
-                                    return (
-                                        <div key={toolCallId} className="mt-2">
-                                            <QuizWidget topic={args.topic} questions={args.questions} />
-                                        </div>
-                                    );
-                                }
+                                    if (toolName === "startQuiz") {
+                                        return (
+                                            <div key={toolCallId} className="mt-2">
+                                                <QuizWidget topic={args.topic as string} questions={args.questions as Array<{ text: string; options: string[]; correctAnswer: string; explanation: string }>} />
+                                            </div>
+                                        );
+                                    }
 
-                                if (toolName === "createFlashcards") {
-                                    return (
-                                        <div key={toolCallId} className="mt-2">
-                                            <FlashcardWidget topic={args.topic} cards={args.cards} />
-                                        </div>
-                                    );
-                                }
+                                    if (toolName === "createFlashcards") {
+                                        return (
+                                            <div key={toolCallId} className="mt-2">
+                                                <FlashcardWidget topic={args.topic as string} cards={args.cards as Array<{ front: string; back: string }>} />
+                                            </div>
+                                        );
+                                    }
 
-                                if (toolName === "startFocusSession") {
-                                    return (
-                                        <div key={toolCallId} className="mt-2">
-                                            <TimerWidget duration={args.duration} goal={args.goal} />
-                                        </div>
-                                    );
+                                    if (toolName === "startFocusSession") {
+                                        return (
+                                            <div key={toolCallId} className="mt-2">
+                                                <TimerWidget duration={args.duration as number} goal={args.goal as string} />
+                                            </div>
+                                        );
+                                    }
                                 }
 
                                 return null;

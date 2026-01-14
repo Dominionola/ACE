@@ -125,7 +125,7 @@ export function QuizPageContent({ subject, decksWithDocuments }: QuizPageContent
         setIsAnalyzing(false);
 
         if (analysisResult.success) {
-            setAnalysis(analysisResult.report);
+            setAnalysis(analysisResult.report ?? null);
         }
     };
 

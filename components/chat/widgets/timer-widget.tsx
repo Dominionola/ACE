@@ -18,18 +18,11 @@ export function TimerWidget({ duration, goal }: TimerWidgetProps) {
     const [isStarted, setIsStarted] = useState(false);
 
     const handleStart = () => {
-        // Set info in timer context
-        timer.setFocusDuration(duration);
-        timer.setMode("focus");
-        timer.resetTimer(); // Apply new duration
-
-        // Start it
-        setTimeout(() => {
-            timer.toggleTimer();
-            setIsStarted(true);
-            // Optionally redirect or just let floating timer take over
-            router.push("/dashboard/study/active");
-        }, 100);
+        // Start the session using the context function
+        timer.startSession(duration);
+        setIsStarted(true);
+        // Navigate to active study page
+        router.push("/dashboard/study/active");
     };
 
     return (
