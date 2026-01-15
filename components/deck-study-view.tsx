@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Document } from "@/lib/schemas/document";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileUpload } from "@/components/file-upload";
+import { GoogleDrivePicker } from "@/components/google-drive-picker";
 import { ChatInterface } from "@/components/chat-interface";
 import { FileText, MessageSquare, Trash2, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -51,9 +52,20 @@ export function DeckStudyView({ deck, documents, userId }: DeckStudyViewProps) {
                     <div className="bg-white p-6 rounded-3xl border border-ace-blue/10 shadow-sm">
                         <h2 className="font-serif text-xl text-ace-blue mb-4 flex items-center gap-2">
                             <BookOpen className="h-5 w-5 opacity-60" />
-                            Upload Documents
+                            Add Documents
                         </h2>
-                        <FileUpload deckId={deck.id} />
+                        <div className="space-y-4">
+                            <FileUpload deckId={deck.id} />
+                            <div className="relative">
+                                <div className="absolute inset-0 flex items-center">
+                                    <span className="w-full border-t border-ace-blue/10" />
+                                </div>
+                                <div className="relative flex justify-center text-xs uppercase">
+                                    <span className="bg-white px-2 text-ace-blue/40">or</span>
+                                </div>
+                            </div>
+                            <GoogleDrivePicker deckId={deck.id} />
+                        </div>
                     </div>
 
                     {/* Documents List */}

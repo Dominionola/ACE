@@ -275,3 +275,171 @@ export async function deleteCard(cardId: string, deckId: string) {
     return { success: true };
 }
 
+// ============================================
+// Get Due Cards Count
+// ============================================
+
+export async function getDueCardsCount(): Promise<{ total: number; byDeck: { deckId: string; deckTitle: string; count: number }[] }> {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return { total: 0, byDeck: [] };
+    }
+
+    // Get all user's decks with their cards
+    const { data: decks, error } = await supabase
+        .from("decks")
+        .select(`
+            id,
+            title,
+            cards (
+                id,
+                next_review
+            )
+        `)
+        .eq("user_id", user.id);
+
+    if (error || !decks) {
+        console.error("Error fetching due cards:", error);
+        return { total: 0, byDeck: [] };
+    }
+
+    const now = new Date();
+    let total = 0;
+    const byDeck: { deckId: string; deckTitle: string; count: number }[] = [];
+
+    for (const deck of decks) {
+        const dueCards = (deck.cards || []).filter((card: { next_review: string | null }) => {
+            if (!card.next_review) return true; // New cards are due
+            return new Date(card.next_review) <= now;
+        });
+
+        if (dueCards.length > 0) {
+            byDeck.push({
+                deckId: deck.id,
+                deckTitle: deck.title,
+                count: dueCards.length,
+            });
+            total += dueCards.length;
+        }
+    }
+
+    return { total, byDeck };
+}
+
+// ============================================
+// Card Tag Management
+// ============================================
+
+export async function updateCardTag(cardId: string, tag: string | null) {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return { success: false, error: "Unauthorized" };
+    }
+
+    // Verify ownership
+    const { data: card, error: fetchError } = await supabase
+        .from("cards")
+        .select(`id, deck_id, decks!inner(user_id)`)
+        .eq("id", cardId)
+        .eq("decks.user_id", user.id)
+        .single();
+
+    if (fetchError || !card) {
+        return { success: false, error: "Card not found or access denied" };
+    }
+
+    const { error } = await supabase
+        .from("cards")
+        .update({ tag: tag || null })
+        .eq("id", cardId);
+
+    if (error) {
+        return { success: false, error: error.message };
+    }
+
+    revalidatePath(`/dashboard/decks/${card.deck_id}`);
+    return { success: true };
+}
+
+export async function getCardTagsForDeck(deckId: string): Promise<string[]> {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+
+    // Get unique tags used in this deck's cards
+    const { data: cards, error } = await supabase
+        .from("cards")
+        .select("tag")
+        .eq("deck_id", deckId)
+        .not("tag", "is", null);
+
+    if (error || !cards) return [];
+
+    // Extract unique tags
+    const tags = [...new Set(cards.map(c => c.tag).filter(Boolean))] as string[];
+    return tags.sort();
+}
+
+export async function getCardsGroupedByTag(deckId: string) {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return { success: false, groups: [] };
+    }
+
+    // Verify deck ownership
+    const { data: deck, error: deckError } = await supabase
+        .from("decks")
+        .select("id")
+        .eq("id", deckId)
+        .eq("user_id", user.id)
+        .single();
+
+    if (deckError || !deck) {
+        return { success: false, groups: [], error: "Deck not found" };
+    }
+
+    // Get all cards for this deck
+    const { data: cards, error } = await supabase
+        .from("cards")
+        .select("*")
+        .eq("deck_id", deckId)
+        .order("created_at", { ascending: true });
+
+    if (error || !cards) {
+        return { success: false, groups: [], error: "Failed to fetch cards" };
+    }
+
+    // Group cards by tag
+    const grouped: Record<string, typeof cards> = {};
+    const untagged: typeof cards = [];
+
+    for (const card of cards) {
+        if (card.tag) {
+            if (!grouped[card.tag]) {
+                grouped[card.tag] = [];
+            }
+            grouped[card.tag].push(card);
+        } else {
+            untagged.push(card);
+        }
+    }
+
+    // Convert to array format
+    const groups = Object.entries(grouped)
+        .map(([tag, cards]) => ({ tag, cards }))
+        .sort((a, b) => a.tag.localeCompare(b.tag));
+
+    // Add untagged at the end
+    if (untagged.length > 0) {
+        groups.push({ tag: "Untagged", cards: untagged });
+    }
+
+    return { success: true, groups };
+}

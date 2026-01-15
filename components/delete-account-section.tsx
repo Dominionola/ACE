@@ -35,20 +35,29 @@ export function DeleteAccountSection() {
         }
 
         setIsDeleting(true);
-        const result = await deleteAccount({ confirmation });
+        try {
+            const result = await deleteAccount({ confirmation });
 
-        if (result.success) {
-            toast({
-                title: "Account Deleted",
-                description: "Your account and all data have been removed.",
-            });
-            router.push("/login");
-        } else {
+            if (result.success) {
+                toast({
+                    title: "Account Deleted",
+                    description: "Your account and all data have been removed.",
+                });
+                router.push("/login");
+            } else {
+                toast({
+                    title: "Deletion Failed",
+                    description: result.error || "Something went wrong.",
+                    variant: "destructive",
+                });
+            }
+        } catch {
             toast({
                 title: "Deletion Failed",
-                description: result.error || "Something went wrong.",
+                description: "An unexpected error occurred. Please try again.",
                 variant: "destructive",
             });
+        } finally {
             setIsDeleting(false);
         }
     };
@@ -67,8 +76,10 @@ export function DeleteAccountSection() {
                         Permanently delete your account and all associated data. This action cannot be undone.
                     </p>
 
-                    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                        <DialogTrigger asChild>
+                    <Dialog open={isOpen} onOpenChange={(open) => {
+                        setIsOpen(open);
+                        if (!open) setConfirmation("");
+                    }}>                        <DialogTrigger asChild>
                             <Button
                                 variant="outline"
                                 className="border-red-300 text-red-600 hover:bg-red-100 hover:text-red-700"

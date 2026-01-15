@@ -37,19 +37,37 @@ export async function POST(req: Request) {
                 return new Response(`Document error: ${error.message}`, { status: 404 });
             }
 
-            // Allow chat even without extracted text, but inform the user
-            const documentContext = document?.extracted_text
+            // Check if document has actual content
+            const hasContent = document?.extracted_text && document.extracted_text.trim().length > 100;
+            const documentContext = hasContent
                 ? document.extracted_text.slice(0, 30000)
-                : "No text content was extracted from this document. The PDF may be image-based or corrupted.";
+                : null;
 
-            systemPrompt = `You are an intelligent study companion helping a student understand their study materials.
+            if (!hasContent) {
+                systemPrompt = `You are an intelligent study companion. The user has opened a document called "${document?.file_name || 'Unknown'}" but unfortunately NO TEXT could be extracted from it.
+
+This usually happens because:
+1. The PDF contains scanned images instead of text (needs OCR)
+2. The PDF is password-protected or corrupted
+3. The file upload failed
+
+IMPORTANT RULES:
+- Tell the user that the document appears to be empty or image-based
+- DO NOT generate quizzes, flashcards, or summaries since there's no content
+- Suggest they try uploading a different PDF with selectable text
+- You can still answer general study questions, but make it clear you cannot see their document
+
+Be helpful and apologetic about the limitation.`;
+            } else {
+                systemPrompt = `You are an intelligent study companion helping a student understand their study materials.
 Answer the user's questions based ONLY on the provided context below.
 If the answer is not in the context, politely say you don't have that information in the document.
 Be concise but thorough. Format your answers with markdown when helpful.
 If asked for a summary or to verify reading, provide a concise summary (max 4 lines) of the beginning of the text to confirm access.
 
-Context from the document:
+Context from the document "${document?.file_name || 'Unknown'}":
 ${documentContext}`;
+            }
         } else {
             // General study tutor mode - no document context
             systemPrompt = `You are ACE, an intelligent AI study companion and tutor.

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card } from "@/lib/schemas/deck";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, RotateCw, CheckCircle, BrainCircuit, HelpCircle } from "lucide-react";
+import { ArrowLeft, RotateCw, CheckCircle, BrainCircuit, HelpCircle, Keyboard } from "lucide-react";
 import { updateCardProgress } from "@/lib/actions/card";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -26,6 +26,7 @@ export function StudyPlayer({ cards, deckId }: StudyPlayerProps) {
     const [isFlipped, setIsFlipped] = useState(false);
     const [isSessionComplete, setIsSessionComplete] = useState(false);
     const [studyQueue, setStudyQueue] = useState<Card[]>([]);
+    const [isProcessing, setIsProcessing] = useState(false);
     const router = useRouter();
 
     // Filter cards that are due
@@ -35,22 +36,20 @@ export function StudyPlayer({ cards, deckId }: StudyPlayerProps) {
             if (!card.next_review) return true; // New cards are due
             return new Date(card.next_review) <= now;
         });
-
-        // If no cards due, maybe offer to study ahead? For now, just show due or all if new deck.
-        // Actually, let's just use the passed cards if the server has already filtered them?
-        // Let's assume the page passes ALL cards, so we filter here.
-        // Or better, let's just study the passed cards.
         setStudyQueue(due.length > 0 ? due : cards);
     }, [cards]);
 
     const currentCard = studyQueue[currentIndex];
 
-    const handleFlip = () => {
-        setIsFlipped(!isFlipped);
-    };
+    const handleFlip = useCallback(() => {
+        if (!isProcessing) {
+            setIsFlipped(prev => !prev);
+        }
+    }, [isProcessing]);
 
-    const handleRate = async (quality: number) => {
-        if (!currentCard) return;
+    const handleRate = useCallback(async (quality: number) => {
+        if (!currentCard || isProcessing) return;
+        setIsProcessing(true);
 
         // Optimistic update: move to next card immediately
         const nextIndex = currentIndex + 1;
@@ -59,6 +58,7 @@ export function StudyPlayer({ cards, deckId }: StudyPlayerProps) {
         await updateCardProgress(currentCard.id, quality);
 
         setIsFlipped(false);
+        setIsProcessing(false);
 
         if (nextIndex >= studyQueue.length) {
             setIsSessionComplete(true);
@@ -71,7 +71,40 @@ export function StudyPlayer({ cards, deckId }: StudyPlayerProps) {
         } else {
             setCurrentIndex(nextIndex);
         }
-    };
+    }, [currentCard, currentIndex, isProcessing, studyQueue.length, router]);
+
+    // Keyboard shortcuts
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // Ignore if typing in an input
+            if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+            if (e.code === "Space") {
+                e.preventDefault();
+                handleFlip();
+            } else if (isFlipped) {
+                // Rating shortcuts only work when card is flipped
+                switch (e.key) {
+                    case "1":
+                        handleRate(1); // Again
+                        break;
+                    case "2":
+                        handleRate(3); // Hard
+                        break;
+                    case "3":
+                        handleRate(4); // Good
+                        break;
+                    case "4":
+                        handleRate(5); // Easy
+                        break;
+                }
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [handleFlip, handleRate, isFlipped]);
+
 
     if (cards.length === 0) {
         return (
@@ -121,8 +154,28 @@ export function StudyPlayer({ cards, deckId }: StudyPlayerProps) {
                 />
             </div>
 
-            {/* SRS Info Tooltip */}
-            <div className="flex justify-end mb-2">
+            {/* SRS Info & Keyboard Shortcuts */}
+            <div className="flex justify-end gap-4 mb-2">
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <button className="flex items-center gap-1 text-xs text-ace-blue/40 hover:text-ace-blue/60 transition-colors">
+                                <Keyboard className="h-4 w-4" />
+                                <span>Shortcuts</span>
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs bg-ace-blue text-white p-4 rounded-xl border-0 shadow-xl">
+                            <p className="font-serif text-lg mb-2">Keyboard Shortcuts</p>
+                            <ul className="space-y-2 text-xs opacity-90">
+                                <li><kbd className="px-1.5 py-0.5 bg-white/20 rounded">Space</kbd> Flip card</li>
+                                <li><kbd className="px-1.5 py-0.5 bg-white/20 rounded">1</kbd> Again (forgot)</li>
+                                <li><kbd className="px-1.5 py-0.5 bg-white/20 rounded">2</kbd> Hard</li>
+                                <li><kbd className="px-1.5 py-0.5 bg-white/20 rounded">3</kbd> Good</li>
+                                <li><kbd className="px-1.5 py-0.5 bg-white/20 rounded">4</kbd> Easy</li>
+                            </ul>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>

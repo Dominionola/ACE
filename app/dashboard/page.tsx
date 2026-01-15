@@ -7,10 +7,11 @@ import {
 import { GamificationDashboard } from "@/components/gamification/gamification-dashboard";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Plus, BookOpen, Calendar, Flame } from "lucide-react";
+import { Plus, Calendar, Flame } from "lucide-react";
 import { TodaysPlan } from "@/components/todays-plan";
 import { WeeklyReportCard } from "@/components/weekly-report-card";
 import { DashboardTimer } from "@/components/dashboard-timer";
+import { DueCardsWidget } from "@/components/due-cards-widget";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getUpcomingExams } from "@/lib/actions/study";
@@ -26,21 +27,6 @@ export default async function DashboardPage() {
 
   // Get user's name
   const userName = user?.user_metadata?.full_name || "Student";
-
-  // Get cards due count (cards that are due for review)
-  let cardsDue = 0;
-  if (user) {
-    try {
-      const { count } = await supabase
-        .from("cards")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .lte("next_review", new Date().toISOString());
-      cardsDue = count || 0;
-    } catch {
-      cardsDue = 0;
-    }
-  }
 
   // Get next exam
   let nextExam = null;
@@ -99,20 +85,13 @@ export default async function DashboardPage() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          {/* Left: Stats + Today's Plan */}
+          {/* Left: Due Cards + Stats + Today's Plan */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Quick Stats */}
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="bg-white p-5 rounded-2xl border border-ace-blue/10 shadow-sm hover:shadow-lg transition-shadow">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-blue-100 rounded-full text-ace-blue">
-                    <BookOpen strokeWidth={1.5} className="h-4 w-4" />
-                  </div>
-                  <span className="font-sans text-xs text-ace-blue/60 uppercase tracking-wide">Cards Due</span>
-                </div>
-                <p className="font-serif text-2xl text-ace-blue">{cardsDue}</p>
-              </div>
+            {/* Due Cards Widget */}
+            <DueCardsWidget />
 
+            {/* Quick Stats Row */}
+            <div className="grid gap-4 md:grid-cols-2">
               {/* Streak Counter */}
               <div className="bg-white p-5 rounded-2xl border border-ace-blue/10 shadow-sm hover:shadow-lg transition-shadow">
                 <div className="flex items-center gap-3 mb-2">
@@ -130,7 +109,7 @@ export default async function DashboardPage() {
               {/* Next Exam */}
               <div className="bg-white p-5 rounded-2xl border border-ace-blue/10 shadow-sm hover:shadow-lg transition-shadow">
                 <div className="flex items-center gap-3 mb-2">
-                  <div className={`p-2 rounded-full ${nextExam ? "bg-orange-100 text-orange-700" : "bg-gray-100 text-gray-400"}`}>
+                  <div className={`p-2 rounded-full ${nextExam ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-400"}`}>
                     <Calendar strokeWidth={1.5} className="h-4 w-4" />
                   </div>
                   <span className="font-sans text-xs text-ace-blue/60 uppercase tracking-wide">Next Exam</span>

@@ -6,6 +6,7 @@ import { getDocumentsForDeck } from "@/lib/actions/document";
 import { getCurrentUser } from "@/lib/actions/auth";
 import { DeckStudyView } from "@/components/deck-study-view";
 import { FlashcardForm } from "@/components/flashcard-form";
+import { CardListWithTags } from "@/components/card-list-with-tags";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -118,34 +119,7 @@ export default async function DeckDetailPage({ params }: DeckDetailPageProps) {
                         />
                     </div>
                 ) : (
-                    <div className="grid gap-4">
-                        {deck.cards.map((card, index) => (
-                            <div
-                                key={card.id}
-                                className="bg-white p-6 rounded-2xl border border-ace-blue/10 hover:shadow-md transition-shadow"
-                            >
-                                <div className="flex items-start justify-between">
-                                    <span className="text-xs font-bold text-ace-blue/40 uppercase tracking-wide mb-2">
-                                        Card {index + 1}
-                                    </span>
-                                </div>
-                                <div className="grid md:grid-cols-2 gap-6">
-                                    <div>
-                                        <p className="text-xs font-bold text-ace-blue/40 uppercase tracking-wide mb-1">
-                                            Front
-                                        </p>
-                                        <p className="font-sans text-ace-blue">{card.front_content}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs font-bold text-ace-blue/40 uppercase tracking-wide mb-1">
-                                            Back
-                                        </p>
-                                        <p className="font-sans text-ace-blue/80">{card.back_content}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                    <CardListWithTags cards={deck.cards} deckId={deck.id} />
                 )}
             </main>
         </>

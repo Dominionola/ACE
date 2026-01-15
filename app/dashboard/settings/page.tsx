@@ -1,4 +1,4 @@
-import { Settings, User, Sliders, ArrowRight } from "lucide-react";
+import { Settings, User, Sliders, ArrowRight, Cloud } from "lucide-react";
 import Link from "next/link";
 
 export default function SettingsPage() {
@@ -16,6 +16,13 @@ export default function SettingsPage() {
             icon: Sliders,
             href: "/dashboard/settings/preferences",
             color: "bg-purple-100 text-purple-600",
+        },
+        {
+            title: "Integrations",
+            description: "Connect Google Drive and other external services",
+            icon: Cloud,
+            href: "/dashboard/settings/integrations",
+            color: "bg-green-100 text-green-600",
         },
     ];
 
