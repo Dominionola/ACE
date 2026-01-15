@@ -45,49 +45,63 @@ export function GoogleDrivePicker({ deckId, onImportComplete }: GoogleDrivePicke
 
     const checkConnectionAndLoadFiles = async () => {
         setIsLoading(true);
+        try {
+            const status = await isGoogleDriveConnected();
+            setIsConnected(status.connected);
 
-        const status = await isGoogleDriveConnected();
-        setIsConnected(status.connected);
+            if (status.connected) {
+                const result = await listGoogleDriveFiles();
+                if (result.success) {
+                    setFiles(result.files);
+                } else {
+                    toast({
+                        title: "Error",
+                        description: result.error || "Failed to load files",
+                        variant: "destructive",
+                    });
+                }
+            }
+        } catch (error) {
+            console.error("Failed to check connection or load files:", error);
+            toast({
+                title: "Error",
+                description: "Failed to connect to Google Drive",
+                variant: "destructive",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    const handleImport = async (file: DriveFile) => {
+        setImportingFileId(file.id);
+        try {
+            const result = await importFromGoogleDrive(file.id, deckId);
 
-        if (status.connected) {
-            const result = await listGoogleDriveFiles();
             if (result.success) {
-                setFiles(result.files);
+                toast({
+                    title: "Imported!",
+                    description: `${file.name} has been added to your deck.`,
+                });
+                setIsOpen(false);
+                onImportComplete?.();
             } else {
                 toast({
-                    title: "Error",
-                    description: result.error || "Failed to load files",
+                    title: "Import Failed",
+                    description: result.error || "Something went wrong",
                     variant: "destructive",
                 });
             }
-        }
-
-        setIsLoading(false);
-    };
-
-    const handleImport = async (file: DriveFile) => {
-        setImportingFileId(file.id);
-
-        const result = await importFromGoogleDrive(file.id, deckId);
-
-        if (result.success) {
-            toast({
-                title: "Imported!",
-                description: `${file.name} has been added to your deck.`,
-            });
-            setIsOpen(false);
-            onImportComplete?.();
-        } else {
+        } catch (error) {
+            console.error("Import failed:", error);
             toast({
                 title: "Import Failed",
-                description: result.error || "Something went wrong",
+                description: "Something went wrong",
                 variant: "destructive",
             });
+        } finally {
+            setImportingFileId(null);
         }
-
-        setImportingFileId(null);
     };
-
     const formatFileSize = (bytes?: string) => {
         if (!bytes) return "";
         const size = parseInt(bytes);

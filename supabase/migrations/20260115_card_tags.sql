@@ -35,8 +35,10 @@ CREATE POLICY "Users can insert own deck tags" ON public.deck_tags
 CREATE POLICY "Users can update own deck tags" ON public.deck_tags
     FOR UPDATE USING (
         deck_id IN (SELECT id FROM public.decks WHERE user_id = auth.uid())
+    )
+    WITH CHECK (
+        deck_id IN (SELECT id FROM public.decks WHERE user_id = auth.uid())
     );
-
 CREATE POLICY "Users can delete own deck tags" ON public.deck_tags
     FOR DELETE USING (
         deck_id IN (SELECT id FROM public.decks WHERE user_id = auth.uid())

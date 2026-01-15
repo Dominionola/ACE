@@ -32,11 +32,10 @@ export async function GET(request: NextRequest) {
         }
 
         // Verify state matches user ID (security check)
-        if (state && state !== user.id) {
-            console.error("State mismatch - possible CSRF attack");
+        if (!state || state !== user.id) {
+            console.error("State missing or mismatch - possible CSRF attack");
             return NextResponse.redirect(`${settingsUrl}?error=state_mismatch`);
         }
-
         // Exchange code for tokens
         const tokenResult = await exchangeCodeForTokens(code);
 

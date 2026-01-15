@@ -64,7 +64,8 @@ async function getValidAccessToken(userId: string): Promise<string | null> {
 
         if (result.success && result.tokens?.access_token) {
             // Update stored token
-            await supabase
+            // Update stored token
+            const { error: updateError } = await supabase
                 .from("google_tokens")
                 .update({
                     access_token: result.tokens.access_token,
@@ -74,6 +75,11 @@ async function getValidAccessToken(userId: string): Promise<string | null> {
                 })
                 .eq("user_id", userId);
 
+            if (updateError) {
+                console.error("Failed to update access token:", updateError);
+            }
+
+            return result.tokens.access_token;
             return result.tokens.access_token;
         }
 

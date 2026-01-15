@@ -47,9 +47,8 @@ export default async function IntegrationsPage() {
                             {driveStatus.connected ? (
                                 <div className="space-y-3">
                                     <p className="text-sm text-ace-blue/70">
-                                        Connected as: <span className="font-medium">{driveStatus.email}</span>
-                                    </p>
-                                    <form action="/api/auth/google/disconnect" method="POST">
+                                        Connected as: <span className="font-medium">{driveStatus.email ?? "Unknown"}</span>
+                                    </p>                                    <form action="/api/auth/google/disconnect" method="POST">
                                         <button
                                             type="submit"
                                             className="text-sm text-red-600 hover:text-red-700 hover:underline"

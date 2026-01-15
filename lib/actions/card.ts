@@ -371,6 +371,16 @@ export async function getCardTagsForDeck(deckId: string): Promise<string[]> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return [];
 
+    // Verify deck ownership
+    const { data: deck, error: deckError } = await supabase
+        .from("decks")
+        .select("id")
+        .eq("id", deckId)
+        .eq("user_id", user.id)
+        .single();
+
+    if (deckError || !deck) return [];
+
     // Get unique tags used in this deck's cards
     const { data: cards, error } = await supabase
         .from("cards")
@@ -384,7 +394,6 @@ export async function getCardTagsForDeck(deckId: string): Promise<string[]> {
     const tags = [...new Set(cards.map(c => c.tag).filter(Boolean))] as string[];
     return tags.sort();
 }
-
 export async function getCardsGroupedByTag(deckId: string) {
     const supabase = await createClient();
 

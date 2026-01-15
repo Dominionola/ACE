@@ -42,25 +42,33 @@ export function CardTagSelector({ cardId, currentTag, existingTags, onTagUpdated
 
     const handleSelectTag = async (tag: string | null) => {
         setIsLoading(true);
-        const result = await updateCardTag(cardId, tag);
+        try {
+            const result = await updateCardTag(cardId, tag);
 
-        if (result.success) {
-            toast({
-                title: tag ? "Tag Updated" : "Tag Removed",
-                description: tag ? `Card tagged as "${tag}"` : "Tag removed from card",
-            });
-            onTagUpdated?.();
-            setIsOpen(false);
-        } else {
+            if (result.success) {
+                toast({
+                    title: tag ? "Tag Updated" : "Tag Removed",
+                    description: tag ? `Card tagged as "${tag}"` : "Tag removed from card",
+                });
+                onTagUpdated?.();
+                setIsOpen(false);
+            } else {
+                toast({
+                    title: "Error",
+                    description: result.error || "Failed to update tag",
+                    variant: "destructive",
+                });
+            }
+        } catch {
             toast({
                 title: "Error",
-                description: result.error || "Failed to update tag",
+                description: "Failed to update tag. Please try again.",
                 variant: "destructive",
             });
+        } finally {
+            setIsLoading(false);
         }
-        setIsLoading(false);
     };
-
     const handleAddNewTag = async () => {
         if (!newTag.trim()) return;
         await handleSelectTag(newTag.trim());
@@ -110,16 +118,17 @@ export function CardTagSelector({ cardId, currentTag, existingTags, onTagUpdated
                             onChange={(e) => setNewTag(e.target.value)}
                             onKeyDown={(e) => e.key === "Enter" && handleAddNewTag()}
                             className="h-8 text-sm"
+                            disabled={isLoading}
                         />
                         <Button
                             size="sm"
                             onClick={handleAddNewTag}
                             disabled={!newTag.trim() || isLoading}
                             className="h-8 w-8 p-0"
+                            aria-label="Add new tag"
                         >
                             <Plus className="h-4 w-4" />
-                        </Button>
-                    </div>
+                        </Button>                    </div>
 
                     {/* Remove tag option */}
                     {currentTag && (

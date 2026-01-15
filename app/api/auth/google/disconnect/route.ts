@@ -9,19 +9,22 @@ export async function POST() {
         if (result.success) {
             return NextResponse.redirect(
                 new URL("/dashboard/settings/integrations?success=disconnected",
-                    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000")
+                    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"),
+                { status: 303 }
             );
         } else {
             return NextResponse.redirect(
                 new URL("/dashboard/settings/integrations?error=disconnect_failed",
-                    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000")
+                    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"),
+                { status: 303 }
             );
         }
     } catch (error) {
         console.error("Disconnect error:", error);
         return NextResponse.redirect(
             new URL("/dashboard/settings/integrations?error=unknown",
-                process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000")
+                process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"),
+            { status: 303 }
         );
     }
 }

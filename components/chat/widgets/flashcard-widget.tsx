@@ -49,6 +49,13 @@ export function FlashcardWidget({ topic, cards }: FlashcardWidgetProps) {
 
     const currentCard = cards[currentIndex];
 
+    if (cards.length === 0) {
+        return (
+            <div className="w-full my-2 p-4 text-center text-ace-blue/50">
+                No flashcards available.
+            </div>
+        );
+    }
     return (
         <div className="w-full my-2">
             {/* Header */}
@@ -160,8 +167,8 @@ export function FlashcardWidget({ topic, cards }: FlashcardWidgetProps) {
                             key={index}
                             onClick={() => toggleCardFlip(index)}
                             className={`cursor-pointer p-4 rounded-xl border transition-all duration-300 min-h-[100px] ${flippedCards.has(index)
-                                    ? "bg-gradient-to-br from-ace-blue to-ace-light text-white border-transparent"
-                                    : "bg-white border-ace-blue/10 hover:border-ace-blue/30 hover:shadow-sm"
+                                ? "bg-gradient-to-br from-ace-blue to-ace-light text-white border-transparent"
+                                : "bg-white border-ace-blue/10 hover:border-ace-blue/30 hover:shadow-sm"
                                 }`}
                         >
                             <div className="flex items-start gap-2 mb-2">
