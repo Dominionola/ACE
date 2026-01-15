@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { User, Mail, Calendar, Shield } from "lucide-react";
 import { ProfileForm } from "./profile-form";
+import { DeleteAccountSection } from "@/components/delete-account-section";
 
 export default async function ProfilePage() {
     const supabase = await createClient();
@@ -82,6 +83,12 @@ export default async function ProfilePage() {
 
             {/* Edit Form */}
             <ProfileForm currentName={fullName} />
+
+            {/* Danger Zone - Delete Account */}
+            <div className="mt-8">
+                <DeleteAccountSection />
+            </div>
         </div>
     );
 }
+

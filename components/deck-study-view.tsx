@@ -133,9 +133,9 @@ export function DeckStudyView({ deck, documents, userId }: DeckStudyViewProps) {
                 {/* AI Chat Tab */}
                 <TabsContent value="chat">
                     {selectedDocumentId && selectedDocument ? (
-                        <div className="grid lg:grid-cols-3 gap-6">
+                        <div className="grid lg:grid-cols-4 gap-6">
                             {/* Document Sidebar (visible on large screens) */}
-                            <div className="hidden lg:block space-y-4">
+                            <div className="space-y-4">
                                 <Button
                                     variant="outline"
                                     className="w-full justify-start gap-2"
@@ -145,16 +145,45 @@ export function DeckStudyView({ deck, documents, userId }: DeckStudyViewProps) {
                                 </Button>
                                 <div className="bg-white p-4 rounded-2xl border border-ace-blue/10">
                                     <p className="text-xs font-semibold text-ace-blue/40 uppercase mb-2">Active Document</p>
-                                    <div className="flex items-center gap-2 text-ace-blue">
+                                    <div className="flex items-center gap-2 text-ace-blue mb-3">
                                         <FileText className="h-4 w-4" />
                                         <span className="truncate font-medium text-sm">{selectedDocument.file_name}</span>
                                     </div>
+                                    {selectedDocument.file_url && (
+                                        <a
+                                            href={selectedDocument.file_url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-2 text-xs text-ace-blue/60 hover:text-ace-blue transition-colors bg-cream-50 px-3 py-2 rounded-lg w-full justify-center"
+                                        >
+                                            <BookOpen className="h-3.5 w-3.5" />
+                                            Open PDF Preview
+                                        </a>
+                                    )}
                                 </div>
-                                {/* List other docs to switch? maybe later */}
+
+                                {/* Quick document switcher */}
+                                {documents.length > 1 && (
+                                    <div className="bg-white p-4 rounded-2xl border border-ace-blue/10">
+                                        <p className="text-xs font-semibold text-ace-blue/40 uppercase mb-2">Switch Document</p>
+                                        <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
+                                            {documents.filter(d => d.id !== selectedDocumentId).map((doc) => (
+                                                <button
+                                                    key={doc.id}
+                                                    onClick={() => setSelectedDocumentId(doc.id)}
+                                                    className="w-full text-left px-3 py-2 rounded-lg text-sm text-ace-blue/70 hover:bg-cream-50 hover:text-ace-blue transition-colors truncate flex items-center gap-2"
+                                                >
+                                                    <FileText className="h-3.5 w-3.5 flex-shrink-0" />
+                                                    <span className="truncate">{doc.file_name}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Chat Interface */}
-                            <div className="lg:col-span-2">
+                            <div className="lg:col-span-3">
                                 <ChatInterface
                                     documentId={selectedDocumentId}
                                     documentName={selectedDocument.file_name}

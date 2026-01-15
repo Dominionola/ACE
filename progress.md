@@ -172,13 +172,83 @@ All major features implemented:
 
 ---
 
+## 🚀 v4.0 UX & Testing Polish (✅ Completed - Jan 14, 2026)
+
+### Authentication UX
+- [x] Password visibility toggle (show/hide) on login & signup pages
+- [x] Improved error messages for auth failures
+
+### Onboarding Experience
+- [x] First-time user onboarding toast (dismissible, localStorage-persisted)
+- [x] Improved empty states with clear CTAs on Schedule page
+- [x] Links guiding users to "Grades & Goals" to add courses
+
+### Component Leak Fixes
+- [x] Fixed dashboard components appearing on login/signup pages
+- [x] Moved FloatingTimerIsland, SessionRecoveryDialog, WorkflowGuide, CoachPrompt to dashboard layout
+
+### Study Timer Enhancements
+- [x] **Fullscreen Focus Mode** - Immersive timer with ambient background
+- [x] Keyboard shortcuts (Space to toggle, Esc to exit)
+- [x] Smooth animations with Framer Motion
+- [x] Mode-aware backgrounds (blue for focus, green for break)
+
+### Schedule & Courses
+- [x] "Add Course" button now always enabled (was disabled for new users)
+- [x] Manual course name input when no grades exist
+- [x] Duplicate course detection
+
+### Weekly Coaching
+- [x] Better error handling when no study data exists
+- [x] Clear message: "Complete some study sessions first"
+
+### File Uploads
+- [x] 10MB file size limit on all upload components
+- [x] User-friendly error messages for oversized files
+- [x] Size limit hints displayed in upload UI
+
+### Bug Fixes
+- [x] Fixed Google API key configuration issue
+- [x] Fixed npm SWC binary loading error on Windows
+- [x] Fixed ECONNRESET npm install errors
+
+---
+
+## 🎯 Current Status: **Production Ready** 🚀
+
+All major features implemented:
+- ✅ Auth & User Profiles (with password visibility)
+- ✅ Deck & Document Management (10MB limit)
+- ✅ AI Chat, Quizzes, Flashcards
+- ✅ Grade Tracking & Trends
+- ✅ Study Strategy & Scheduling
+- ✅ Gamification (Streaks, XP, Badges)
+- ✅ Security (Rate Limiting, Auth, RLS)
+- ✅ Fullscreen Focus Mode
+- ✅ First-time User Onboarding
+
+---
+
 ## 💡 Future Enhancements (Backlog)
 
 | Feature | Priority | Effort |
 |---------|----------|--------|
+| Google Drive integration (PDF storage) | High | 4-6 hrs |
 | Mobile responsive polish | Medium | 3-5 hrs |
 | Email notifications (weekly report) | Low | 2-3 hrs |
 | Leaderboards | Low | 4-6 hrs |
 | Upstash rate limiting (multi-instance) | Low | 1-2 hrs |
 | Bulk Zod validation for arrays | Low | 1 hr |
+| Account deletion feature | Medium | 2 hrs |
+| Export study data (CSV/PDF) | Low | 2-3 hrs |
+
+---
+
+## 🔍 Known Issues & Technical Debt
+
+| Issue | Severity | Notes |
+|-------|----------|-------|
+| Weekly reports table may need migration | Low | Check if `weekly_reports` table exists |
+| Middleware deprecation warning | Info | Next.js recommends `proxy` over `middleware` |
+| Multiple lockfile warning | Info | Extra package-lock.json in parent directory |
 

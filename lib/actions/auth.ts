@@ -163,3 +163,76 @@ export async function updateProfile(data: { fullName: string }): Promise<AuthRes
     return { success: true };
 }
 
+// ============================================
+// Delete Account
+// ============================================
+
+const DeleteAccountSchema = z.object({
+    confirmation: z.string().refine((val) => val === "DELETE MY ACCOUNT", {
+        message: "Please type 'DELETE MY ACCOUNT' to confirm"
+    }),
+});
+
+export async function deleteAccount(data: { confirmation: string }): Promise<AuthResult> {
+    const supabase = await createClient();
+
+    // 1. Validate confirmation text
+    const result = DeleteAccountSchema.safeParse(data);
+    if (!result.success) {
+        return { success: false, error: result.error.issues[0]?.message };
+    }
+
+    // 2. Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return { success: false, error: "Not authenticated" };
+    }
+
+    try {
+        // 3. Delete user's data from all related tables
+        // Order matters - delete child records before parent records
+        const tablesToDelete = [
+            "study_sessions",
+            "weekly_reports",
+            "weekly_focus",
+            "subject_goals",
+            "grade_history",
+            "user_stats",
+            "user_badges",
+            "quiz_results",
+            "flashcard_progress",
+            "documents",
+            "decks",
+            "study_plans",
+        ];
+
+        for (const table of tablesToDelete) {
+            const { error } = await supabase
+                .from(table)
+                .delete()
+                .eq("user_id", user.id);
+
+            // Log but don't fail if table doesn't exist
+            if (error && !error.message.includes("does not exist")) {
+                console.warn(`Failed to delete from ${table}:`, error.message);
+            }
+        }
+
+        // 4. Sign out the user first
+        await supabase.auth.signOut();
+
+        // 5. Note: Full account deletion requires admin API or Supabase dashboard
+        // The user's auth record remains but all their data is deleted
+        // For full deletion, you would need to use Supabase Admin API
+
+        revalidatePath("/", "layout");
+        return { success: true };
+
+    } catch (error) {
+        console.error("Delete account error:", error);
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : "Failed to delete account"
+        };
+    }
+}

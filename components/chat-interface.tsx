@@ -6,7 +6,6 @@ import { Send, Bot, Loader2, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { QuizWidget } from "@/components/chat/widgets/quiz-widget";
 import { FlashcardWidget } from "@/components/chat/widgets/flashcard-widget";
 import { TimerWidget } from "@/components/chat/widgets/timer-widget";
@@ -44,7 +43,7 @@ export function ChatInterface({ documentId, documentName }: ChatInterfaceProps) 
     const isLoading = status !== "ready";
 
     return (
-        <div className="flex flex-col h-[calc(100vh-200px)] sm:h-[600px] max-h-[600px] border border-ace-blue/10 rounded-3xl bg-gradient-to-b from-cream-50 to-white shadow-lg overflow-hidden">
+        <div className="flex flex-col h-[calc(100vh-140px)] min-h-[500px] border border-ace-blue/10 rounded-3xl bg-gradient-to-b from-cream-50 to-white shadow-lg overflow-hidden">
             {/* Header */}
             <div className="p-4 border-b border-ace-blue/10 bg-white/80 backdrop-blur-sm flex items-center gap-3">
                 <div className="p-2.5 bg-gradient-to-br from-ace-blue to-ace-light rounded-xl shadow-sm">
@@ -92,17 +91,8 @@ export function ChatInterface({ documentId, documentName }: ChatInterfaceProps) 
                 {messages.map((message) => (
                     <div
                         key={message.id}
-                        className={`flex gap-3 animate-fade-in ${message.role === "user" ? "flex-row-reverse" : "flex-row"
-                            }`}
+                        className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                     >
-                        <Avatar className="h-8 w-8 border-2 border-white shadow-sm flex-shrink-0">
-                            {message.role === "user" ? (
-                                <AvatarFallback className="bg-gradient-to-br from-ace-blue to-ace-light text-white text-xs font-bold">U</AvatarFallback>
-                            ) : (
-                                <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-xs font-bold text-[10px]">AI</AvatarFallback>
-                            )}
-                        </Avatar>
-
                         <div
                             className={`rounded-2xl px-4 py-3 max-w-[85%] text-sm leading-relaxed shadow-sm whitespace-pre-wrap ${message.role === "user"
                                 ? "bg-gradient-to-br from-ace-blue to-ace-light text-white rounded-tr-sm"
@@ -153,9 +143,6 @@ export function ChatInterface({ documentId, documentName }: ChatInterfaceProps) 
 
                 {isLoading && (
                     <div className="flex gap-3 animate-in fade-in zoom-in duration-300">
-                        <Avatar className="h-8 w-8 border-2 border-white shadow-sm">
-                            <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-xs font-bold text-[10px]">AI</AvatarFallback>
-                        </Avatar>
                         <div className="bg-white rounded-2xl px-4 py-3 rounded-tl-sm border border-ace-blue/5 shadow-sm">
                             <div className="flex items-center gap-2 text-ace-blue/50">
                                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
