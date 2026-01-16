@@ -104,7 +104,10 @@ export function ChatInterface({ documentId, documentName }: ChatInterfaceProps) 
                             {message.parts?.map((part, index) => {
                                 if (part.type === "text") {
                                     return (
-                                        <div key={index} className="prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-headings:my-2 prose-strong:text-inherit">
+                                        <div
+                                            key={index}
+                                            className="prose prose-sm max-w-none prose-p:my-3 prose-p:leading-relaxed prose-ul:my-3 prose-ol:my-3 prose-li:my-1 prose-headings:my-4 prose-strong:text-inherit prose-strong:font-semibold [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+                                        >
                                             <ReactMarkdown>
                                                 {part.text}
                                             </ReactMarkdown>
