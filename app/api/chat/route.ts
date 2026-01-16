@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { convertToModelMessages, streamText, UIMessage, tool } from "ai";
-import { z } from "zod";
+import { convertToModelMessages, streamText, UIMessage } from "ai";
 
 const google = createGoogleGenerativeAI({
     apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
@@ -9,83 +8,154 @@ const google = createGoogleGenerativeAI({
 
 export const maxDuration = 30;
 
+// Helper to fetch user's academic context
+async function getUserAcademicContext(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
+    // Fetch grades
+    const { data: grades } = await supabase
+        .from("grade_history")
+        .select("subject_name, grade_value, semester")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(20);
+
+    // Fetch goals
+    const { data: goals } = await supabase
+        .from("subject_goals")
+        .select("subject_name, target_grade")
+        .eq("user_id", userId);
+
+    // Fetch upcoming exams
+    const { data: exams } = await supabase
+        .from("exams")
+        .select("subject_name, exam_date, exam_type")
+        .eq("user_id", userId)
+        .gte("exam_date", new Date().toISOString())
+        .order("exam_date", { ascending: true })
+        .limit(5);
+
+    // Fetch study stats
+    const { data: studySessions } = await supabase
+        .from("study_sessions")
+        .select("duration_minutes, subject")
+        .eq("user_id", userId)
+        .gte("created_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString());
+
+    const totalStudyMinutes = studySessions?.reduce((sum, s) => sum + (s.duration_minutes || 0), 0) || 0;
+
+    // Build context string
+    let context = "";
+
+    if (grades && grades.length > 0) {
+        context += "\n\n📊 STUDENT'S GRADES:\n";
+        const gradesBySemester: Record<string, typeof grades> = {};
+        grades.forEach(g => {
+            if (!gradesBySemester[g.semester]) gradesBySemester[g.semester] = [];
+            gradesBySemester[g.semester].push(g);
+        });
+        for (const [semester, semGrades] of Object.entries(gradesBySemester)) {
+            context += `\n${semester}:\n`;
+            semGrades.forEach(g => {
+                const goal = goals?.find(goal => goal.subject_name.toLowerCase() === g.subject_name.toLowerCase());
+                context += `  - ${g.subject_name}: ${g.grade_value}${goal ? ` (Goal: ${goal.target_grade})` : ""}\n`;
+            });
+        }
+    }
+
+    if (exams && exams.length > 0) {
+        context += "\n📅 UPCOMING EXAMS:\n";
+        exams.forEach(e => {
+            const daysUntil = Math.ceil((new Date(e.exam_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+            context += `  - ${e.subject_name} (${e.exam_type || "Exam"}) - in ${daysUntil} days\n`;
+        });
+    }
+
+    if (totalStudyMinutes > 0) {
+        context += `\n⏱️ STUDY THIS WEEK: ${Math.round(totalStudyMinutes / 60 * 10) / 10} hours\n`;
+    }
+
+    return context;
+}
+
 export async function POST(req: Request) {
     try {
         const { messages, documentId }: { messages: UIMessage[]; documentId?: string | null } = await req.json();
 
-        // Debug: Log API key presence (not the actual key!)
-        console.log("API Key present:", !!process.env.GOOGLE_GENERATIVE_AI_API_KEY);
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
 
-        // If documentId is provided, fetch document context
+        // Fetch academic context for authenticated users
+        let academicContext = "";
+        if (user) {
+            academicContext = await getUserAcademicContext(supabase, user.id);
+        }
+
         let systemPrompt: string;
 
         if (documentId) {
-            const supabase = await createClient();
             console.log("Fetching document:", documentId);
 
-            // Fetch document content
             const { data: document, error } = await supabase
                 .from("documents")
                 .select("extracted_text, file_name")
                 .eq("id", documentId)
                 .single();
 
-            console.log("Document result:", { document, error });
-
             if (error) {
                 console.error("Document fetch error:", error);
                 return new Response(`Document error: ${error.message}`, { status: 404 });
             }
 
-            // Check if document has actual content
             const hasContent = document?.extracted_text && document.extracted_text.trim().length > 100;
             const documentContext = hasContent
-                ? document.extracted_text.slice(0, 30000)
+                ? document.extracted_text.slice(0, 25000)
                 : null;
 
             if (!hasContent) {
-                systemPrompt = `You are an intelligent study companion. The user has opened a document called "${document?.file_name || 'Unknown'}" but unfortunately NO TEXT could be extracted from it.
+                systemPrompt = `You are ACE, an intelligent study companion. The user has opened a document called "${document?.file_name || 'Unknown'}" but NO TEXT could be extracted.
 
 This usually happens because:
-1. The PDF contains scanned images instead of text (needs OCR)
+1. The PDF contains scanned images instead of text
 2. The PDF is password-protected or corrupted
-3. The file upload failed
 
-IMPORTANT RULES:
-- Tell the user that the document appears to be empty or image-based
-- DO NOT generate quizzes, flashcards, or summaries since there's no content
-- Suggest they try uploading a different PDF with selectable text
-- You can still answer general study questions, but make it clear you cannot see their document
+IMPORTANT: You cannot generate quizzes/flashcards from this document. Suggest uploading a text-based PDF.
+${academicContext}
 
-Be helpful and apologetic about the limitation.`;
+However, you CAN still help with their grades and study questions shown above!`;
             } else {
-                systemPrompt = `You are an intelligent study companion helping a student understand their study materials.
-Answer the user's questions based ONLY on the provided context below.
-If the answer is not in the context, politely say you don't have that information in the document.
-Be concise but thorough. Format your answers with markdown when helpful.
-If asked for a summary or to verify reading, provide a concise summary (max 4 lines) of the beginning of the text to confirm access.
+                systemPrompt = `You are ACE, an intelligent study companion helping a student understand their study materials.
 
-Context from the document "${document?.file_name || 'Unknown'}":
-${documentContext}`;
+PRIMARY TASK: Answer questions about the document below.
+SECONDARY: You also have access to the student's academic data.
+
+📄 DOCUMENT: "${document?.file_name || 'Unknown'}"
+${documentContext}
+${academicContext}
+
+RULES:
+- Answer document questions from the document context
+- If asked about grades/exams/study progress, use the academic data above
+- Be concise and use markdown formatting
+- If info isn't available, say so politely`;
             }
         } else {
-            // General study tutor mode - no document context
-            systemPrompt = `You are ACE, an intelligent AI study companion and tutor.
-Help students with:
-- Study techniques and strategies (Pomodoro, active recall, spaced repetition)
-- Exam preparation tips and time management
-- Motivation and focus advice
-- Explaining learning concepts in simple terms
-- Creating study plans and schedules
+            systemPrompt = `You are ACE, an intelligent AI study companion and personal tutor.
+${academicContext}
 
-Be friendly, encouraging, and concise. Use markdown formatting when helpful.
-If asked for a specific subject content (like math problems or science concepts), provide helpful explanations.
-Always encourage active learning and effective study habits.
+YOUR CAPABILITIES:
+- You know the student's grades, goals, and upcoming exams (shown above)
+- Help with study techniques (Pomodoro, active recall, spaced repetition)  
+- Provide exam prep tips and time management advice
+- Explain concepts in simple terms
+- Create personalized study plans based on their weak subjects
 
-If the user provides a document or text (like a resume or essay) and asks for help, analyze it and provide feedback.`;
+WHEN ASKED ABOUT GRADES:
+- Reference the actual grades shown above
+- Compare to their goals if set
+- Suggest focusing on subjects where they're below target
+
+Be friendly, encouraging, and personalized. Use markdown formatting.`;
         }
 
-        // Stream response using Gemini
         const result = streamText({
             model: google("gemini-2.0-flash"),
             messages: convertToModelMessages(messages),

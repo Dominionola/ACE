@@ -21,12 +21,13 @@ export function DeckFolder({ semester, decks, defaultOpen = true }: DeckFolderPr
             {/* Folder Header - Clickable */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
+                aria-expanded={isOpen}
                 className="w-full flex items-center gap-4 p-4 hover:bg-cream-50 transition-colors group"
             >
                 {/* Folder Icon */}
                 <div className={`p-2.5 rounded-xl transition-colors ${isOpen
-                        ? "bg-ace-blue/10 text-ace-blue"
-                        : "bg-cream-100 text-ace-blue/60 group-hover:bg-ace-blue/10 group-hover:text-ace-blue"
+                    ? "bg-ace-blue/10 text-ace-blue"
+                    : "bg-cream-100 text-ace-blue/60 group-hover:bg-ace-blue/10 group-hover:text-ace-blue"
                     }`}>
                     {isOpen ? (
                         <FolderOpen className="h-5 w-5" />
@@ -56,7 +57,6 @@ export function DeckFolder({ semester, decks, defaultOpen = true }: DeckFolderPr
                     <ChevronDown className="h-5 w-5 text-ace-blue/40" />
                 </div>
             </button>
-
             {/* Collapsible Content */}
             <AnimatePresence initial={false}>
                 {isOpen && (

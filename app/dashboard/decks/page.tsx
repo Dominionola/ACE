@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { Plus, Library, ChevronDown, Sparkles } from "lucide-react";
-import { getDecksGroupedBySemester, getDecks } from "@/lib/actions/deck";
-import { DeckCard } from "@/components/deck-card";
+import { Plus, Library, Sparkles } from "lucide-react";
+import { getDecksGroupedBySemester } from "@/lib/actions/deck";
+import { DeckFolder } from "@/components/deck-folder";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -35,7 +35,7 @@ export default async function DecksPage() {
                     <div>
                         <h1 className="font-serif text-3xl text-ace-blue mb-1">My Decks</h1>
                         <p className="font-sans text-ace-blue/60">
-                            {totalDecks} {totalDecks === 1 ? "deck" : "decks"} total
+                            {totalDecks} {totalDecks === 1 ? "deck" : "decks"} in {groupedDecks.length} {groupedDecks.length === 1 ? "folder" : "folders"}
                         </p>
                     </div>
                     <Link
@@ -47,7 +47,7 @@ export default async function DecksPage() {
                     </Link>
                 </div>
 
-                {/* Deck Groups */}
+                {/* Deck Folders */}
                 {totalDecks === 0 ? (
                     <div className="flex flex-col items-center justify-center py-24 text-center">
                         <div className="p-4 bg-ace-blue/5 rounded-full mb-6">
@@ -76,32 +76,14 @@ export default async function DecksPage() {
                         </div>
                     </div>
                 ) : (
-                    <div className="space-y-8">
-                        {groupedDecks.map((group) => (
-                            <div key={group.semester} className="space-y-4">
-                                {/* Semester Header */}
-                                <div className="flex items-center gap-3">
-                                    <h2 className="font-serif text-xl text-ace-blue">
-                                        {group.semester}
-                                    </h2>
-                                    <span className="text-sm text-ace-blue/40 bg-cream-100 px-2 py-0.5 rounded-full">
-                                        {group.decks.length} {group.decks.length === 1 ? "deck" : "decks"}
-                                    </span>
-                                    {group.semester !== "Other" && (
-                                        <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full flex items-center gap-1">
-                                            <Sparkles className="h-3 w-3" />
-                                            Auto-generated
-                                        </span>
-                                    )}
-                                </div>
-
-                                {/* Decks Grid */}
-                                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                    {group.decks.map((deck) => (
-                                        <DeckCard key={deck.id} deck={deck} />
-                                    ))}
-                                </div>
-                            </div>
+                    <div className="space-y-4">
+                        {groupedDecks.map((group, index) => (
+                            <DeckFolder
+                                key={group.semester}
+                                semester={group.semester}
+                                decks={group.decks}
+                                defaultOpen={index === 0} // First folder open by default
+                            />
                         ))}
                     </div>
                 )}
