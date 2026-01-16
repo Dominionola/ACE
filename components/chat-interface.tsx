@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { QuizWidget } from "@/components/chat/widgets/quiz-widget";
 import { FlashcardWidget } from "@/components/chat/widgets/flashcard-widget";
 import { TimerWidget } from "@/components/chat/widgets/timer-widget";
+import ReactMarkdown from "react-markdown";
 
 interface ChatInterfaceProps {
     documentId: string;
@@ -94,7 +95,7 @@ export function ChatInterface({ documentId, documentName }: ChatInterfaceProps) 
                         className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                     >
                         <div
-                            className={`rounded-2xl px-4 py-3 max-w-[85%] text-sm leading-relaxed shadow-sm whitespace-pre-wrap ${message.role === "user"
+                            className={`rounded-2xl px-4 py-3 max-w-[85%] text-sm leading-relaxed shadow-sm ${message.role === "user"
                                 ? "bg-gradient-to-br from-ace-blue to-ace-light text-white rounded-tr-sm"
                                 : "bg-white text-ace-blue rounded-tl-sm border border-ace-blue/5"
                                 }`}
@@ -102,7 +103,13 @@ export function ChatInterface({ documentId, documentName }: ChatInterfaceProps) 
                             {/* Render message parts */}
                             {message.parts?.map((part, index) => {
                                 if (part.type === "text") {
-                                    return <span key={index}>{part.text}</span>;
+                                    return (
+                                        <div key={index} className="prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-headings:my-2 prose-strong:text-inherit">
+                                            <ReactMarkdown>
+                                                {part.text}
+                                            </ReactMarkdown>
+                                        </div>
+                                    );
                                 }
 
                                 // Handle tool invocations (new API)

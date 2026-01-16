@@ -11,12 +11,14 @@ export const maxDuration = 30;
 // Helper to fetch user's academic context
 async function getUserAcademicContext(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
     // Fetch grades
-    const { data: grades } = await supabase
+    const { data: grades, error: gradesError } = await supabase
         .from("grade_history")
         .select("subject_name, grade_value, semester")
         .eq("user_id", userId)
         .order("created_at", { ascending: false })
-        .limit(20);
+        .limit(30);
+
+    console.log("[Chat API] Grades fetched:", grades?.length || 0, gradesError?.message || "OK");
 
     // Fetch goals
     const { data: goals } = await supabase
@@ -46,33 +48,37 @@ async function getUserAcademicContext(supabase: Awaited<ReturnType<typeof create
     let context = "";
 
     if (grades && grades.length > 0) {
-        context += "\n\n📊 STUDENT'S GRADES:\n";
+        context += "\n\n📊 STUDENT'S CURRENT GRADES:\n";
         const gradesBySemester: Record<string, typeof grades> = {};
         grades.forEach(g => {
-            if (!gradesBySemester[g.semester]) gradesBySemester[g.semester] = [];
-            gradesBySemester[g.semester].push(g);
+            const sem = g.semester || "Unknown Semester";
+            if (!gradesBySemester[sem]) gradesBySemester[sem] = [];
+            gradesBySemester[sem].push(g);
         });
         for (const [semester, semGrades] of Object.entries(gradesBySemester)) {
-            context += `\n${semester}:\n`;
+            context += `\n**${semester}:**\n`;
             semGrades.forEach(g => {
                 const goal = goals?.find(goal => goal.subject_name.toLowerCase() === g.subject_name.toLowerCase());
-                context += `  - ${g.subject_name}: ${g.grade_value}${goal ? ` (Goal: ${goal.target_grade})` : ""}\n`;
+                context += `  • ${g.subject_name}: Grade **${g.grade_value}**${goal ? ` (Target: ${goal.target_grade})` : ""}\n`;
             });
         }
+    } else {
+        context += "\n\n📊 No grades logged yet.\n";
     }
 
     if (exams && exams.length > 0) {
-        context += "\n📅 UPCOMING EXAMS:\n";
+        context += "\n\n📅 UPCOMING EXAMS:\n";
         exams.forEach(e => {
             const daysUntil = Math.ceil((new Date(e.exam_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-            context += `  - ${e.subject_name} (${e.exam_type || "Exam"}) - in ${daysUntil} days\n`;
+            context += `  • ${e.subject_name} (${e.exam_type || "Exam"}) - in ${daysUntil} days\n`;
         });
     }
 
     if (totalStudyMinutes > 0) {
-        context += `\n⏱️ STUDY THIS WEEK: ${Math.round(totalStudyMinutes / 60 * 10) / 10} hours\n`;
+        context += `\n\n⏱️ Study this week: ${Math.round(totalStudyMinutes / 60 * 10) / 10} hours\n`;
     }
 
+    console.log("[Chat API] Academic context length:", context.length);
     return context;
 }
 
