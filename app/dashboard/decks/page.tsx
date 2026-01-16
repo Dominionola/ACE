@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Plus, Library } from "lucide-react";
-import { getDecks } from "@/lib/actions/deck";
+import { Plus, Library, ChevronDown, Sparkles } from "lucide-react";
+import { getDecksGroupedBySemester, getDecks } from "@/lib/actions/deck";
 import { DeckCard } from "@/components/deck-card";
 import {
     Breadcrumb,
@@ -12,7 +12,8 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default async function DecksPage() {
-    const decks = await getDecks();
+    const groupedDecks = await getDecksGroupedBySemester();
+    const totalDecks = groupedDecks.reduce((sum, g) => sum + g.decks.length, 0);
 
     return (
         <>
@@ -34,7 +35,7 @@ export default async function DecksPage() {
                     <div>
                         <h1 className="font-serif text-3xl text-ace-blue mb-1">My Decks</h1>
                         <p className="font-sans text-ace-blue/60">
-                            {decks.length} {decks.length === 1 ? "deck" : "decks"} total
+                            {totalDecks} {totalDecks === 1 ? "deck" : "decks"} total
                         </p>
                     </div>
                     <Link
@@ -46,8 +47,8 @@ export default async function DecksPage() {
                     </Link>
                 </div>
 
-                {/* Deck Grid */}
-                {decks.length === 0 ? (
+                {/* Deck Groups */}
+                {totalDecks === 0 ? (
                     <div className="flex flex-col items-center justify-center py-24 text-center">
                         <div className="p-4 bg-ace-blue/5 rounded-full mb-6">
                             <Library strokeWidth={1.5} className="h-12 w-12 text-ace-blue/40" />
@@ -55,19 +56,52 @@ export default async function DecksPage() {
                         <h2 className="font-serif text-2xl text-ace-blue mb-2">No decks yet</h2>
                         <p className="font-sans text-ace-blue/60 mb-6 max-w-md">
                             Create your first study deck to start organizing your learning materials.
+                            Or add grades in the Grades section to auto-generate decks!
                         </p>
-                        <Link
-                            href="/dashboard/decks/new"
-                            className="px-6 py-3 bg-ace-blue text-white rounded-full font-medium hover:bg-ace-light transition-all shadow-lg flex items-center gap-2"
-                        >
-                            <Plus strokeWidth={1.5} className="h-5 w-5" />
-                            Create Your First Deck
-                        </Link>
+                        <div className="flex gap-3">
+                            <Link
+                                href="/dashboard/decks/new"
+                                className="px-6 py-3 bg-ace-blue text-white rounded-full font-medium hover:bg-ace-light transition-all shadow-lg flex items-center gap-2"
+                            >
+                                <Plus strokeWidth={1.5} className="h-5 w-5" />
+                                Create Your First Deck
+                            </Link>
+                            <Link
+                                href="/dashboard/grades"
+                                className="px-6 py-3 bg-amber-500 text-white rounded-full font-medium hover:bg-amber-600 transition-all shadow-lg flex items-center gap-2"
+                            >
+                                <Sparkles strokeWidth={1.5} className="h-5 w-5" />
+                                Import Grades
+                            </Link>
+                        </div>
                     </div>
                 ) : (
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        {decks.map((deck) => (
-                            <DeckCard key={deck.id} deck={deck} />
+                    <div className="space-y-8">
+                        {groupedDecks.map((group) => (
+                            <div key={group.semester} className="space-y-4">
+                                {/* Semester Header */}
+                                <div className="flex items-center gap-3">
+                                    <h2 className="font-serif text-xl text-ace-blue">
+                                        {group.semester}
+                                    </h2>
+                                    <span className="text-sm text-ace-blue/40 bg-cream-100 px-2 py-0.5 rounded-full">
+                                        {group.decks.length} {group.decks.length === 1 ? "deck" : "decks"}
+                                    </span>
+                                    {group.semester !== "Other" && (
+                                        <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                            <Sparkles className="h-3 w-3" />
+                                            Auto-generated
+                                        </span>
+                                    )}
+                                </div>
+
+                                {/* Decks Grid */}
+                                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                    {group.decks.map((deck) => (
+                                        <DeckCard key={deck.id} deck={deck} />
+                                    ))}
+                                </div>
+                            </div>
                         ))}
                     </div>
                 )}

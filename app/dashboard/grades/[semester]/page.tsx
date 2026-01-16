@@ -6,6 +6,7 @@ import { StudySchedule } from "@/components/study-schedule";
 import { SessionLogger } from "@/components/session-logger";
 import { ExamTracker } from "@/components/exam-tracker";
 import { StudyProgress } from "@/components/study-progress";
+import { DeleteSemesterButton } from "@/components/delete-semester-button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Target, CheckCircle, AlertCircle } from "lucide-react";
 import Link from "next/link";
@@ -48,10 +49,13 @@ export default async function SemesterPage({ params }: SemesterPageProps) {
         <div className="container mx-auto p-6 max-w-5xl">
             {/* Header */}
             <div className="mb-8">
-                <Link href="/dashboard/grades" className="inline-flex items-center gap-2 text-ace-blue/60 hover:text-ace-blue transition-colors mb-4">
-                    <ArrowLeft className="h-4 w-4" />
-                    <span className="text-sm font-medium">Back to Performance</span>
-                </Link>
+                <div className="flex items-center justify-between mb-4">
+                    <Link href="/dashboard/grades" className="inline-flex items-center gap-2 text-ace-blue/60 hover:text-ace-blue transition-colors">
+                        <ArrowLeft className="h-4 w-4" />
+                        <span className="text-sm font-medium">Back to Performance</span>
+                    </Link>
+                    <DeleteSemesterButton semester={decodedSemester} />
+                </div>
 
                 <h1 className="text-4xl font-serif font-bold text-ace-blue">{decodedSemester}</h1>
                 <p className="text-ace-blue/60 mt-2">Review your performance and get AI-powered study strategies.</p>

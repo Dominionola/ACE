@@ -161,3 +161,143 @@ export async function deleteDeck(id: string): Promise<{ success: boolean; error?
     revalidatePath("/dashboard/decks");
     return { success: true };
 }
+
+// ============================================
+// Create Deck for Subject (Auto-generation)
+// ============================================
+
+interface CreateDeckForSubjectOptions {
+    subjectName: string;
+    semester?: string;
+    source: 'grades' | 'goals';
+}
+
+export async function createDeckForSubject(options: CreateDeckForSubjectOptions): Promise<{ success: boolean; deckId?: string }> {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return { success: false };
+    }
+
+    const { subjectName, semester, source } = options;
+
+    // Check if deck already exists for this subject + semester
+    const query = supabase
+        .from("decks")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("title", subjectName);
+
+    if (semester) {
+        query.eq("semester", semester);
+    }
+
+    const { data: existing } = await query.single();
+
+    if (existing) {
+        // Deck already exists
+        return { success: true, deckId: existing.id };
+    }
+
+    // Create new deck
+    const tags = ["auto-generated"];
+    if (semester) tags.push(semester);
+
+    const { data, error } = await supabase
+        .from("decks")
+        .insert({
+            title: subjectName,
+            description: `Study deck for ${subjectName}${semester ? ` - ${semester}` : ""}`,
+            user_id: user.id,
+            is_public: false,
+            tags,
+            semester: semester || null,
+            subject_source: source,
+        })
+        .select("id")
+        .single();
+
+    if (error) {
+        console.error("Error creating deck for subject:", error);
+        return { success: false };
+    }
+
+    return { success: true, deckId: data.id };
+}
+
+// ============================================
+// Bulk Create Decks for Subjects
+// ============================================
+
+export async function createDecksForSubjects(
+    subjects: { subject_name: string; semester?: string }[],
+    source: 'grades' | 'goals'
+): Promise<{ created: number; existing: number }> {
+    let created = 0;
+    let existing = 0;
+
+    for (const subject of subjects) {
+        const result = await createDeckForSubject({
+            subjectName: subject.subject_name,
+            semester: subject.semester,
+            source,
+        });
+
+        if (result.success) {
+            // If deckId exists, we created or found it
+            // We don't track which is which here, just count successes
+            created++;
+        }
+    }
+
+    revalidatePath("/dashboard/decks");
+    return { created, existing };
+}
+
+// ============================================
+// Get Decks Grouped by Semester
+// ============================================
+
+export async function getDecksGroupedBySemester(): Promise<{ semester: string; decks: Deck[] }[]> {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+
+    const { data, error } = await supabase
+        .from("decks")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("semester", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false });
+
+    if (error || !data) return [];
+
+    // Group by semester
+    const groups: Record<string, Deck[]> = {};
+    const noSemester: Deck[] = [];
+
+    for (const deck of data) {
+        if (deck.semester) {
+            if (!groups[deck.semester]) {
+                groups[deck.semester] = [];
+            }
+            groups[deck.semester].push(deck);
+        } else {
+            noSemester.push(deck);
+        }
+    }
+
+    // Convert to array format
+    const result = Object.entries(groups)
+        .map(([semester, decks]) => ({ semester, decks }))
+        .sort((a, b) => b.semester.localeCompare(a.semester)); // Latest first
+
+    // Add "Other" group for decks without semester
+    if (noSemester.length > 0) {
+        result.push({ semester: "Other", decks: noSemester });
+    }
+
+    return result;
+}

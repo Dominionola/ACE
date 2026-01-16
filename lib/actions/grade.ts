@@ -85,6 +85,72 @@ export async function deleteGrade(id: string) {
     return { success: true };
 }
 
+// ============================================
+// Delete Entire Semester (Grades, Goals, Decks)
+// ============================================
+
+export async function deleteSemester(semester: string) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        return { success: false, error: "Unauthorized" };
+    }
+
+    // 1. Delete all grades for this semester
+    const { error: gradesError } = await supabase
+        .from("grade_history")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("semester", semester);
+
+    if (gradesError) {
+        console.error("Error deleting grades:", gradesError);
+        return { success: false, error: "Failed to delete grades" };
+    }
+
+    // 2. Delete auto-generated decks for this semester
+    const { error: decksError } = await supabase
+        .from("decks")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("semester", semester)
+        .eq("subject_source", "grades");
+
+    if (decksError) {
+        console.error("Error deleting decks:", decksError);
+        // Non-fatal - grades are already deleted
+    }
+
+    // 3. Delete study strategies for this semester
+    const { error: strategiesError } = await supabase
+        .from("study_strategies")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("semester", semester);
+
+    if (strategiesError) {
+        console.error("Error deleting strategies:", strategiesError);
+        // Non-fatal
+    }
+
+    // 4. Delete weekly focus for this semester
+    const { error: focusError } = await supabase
+        .from("weekly_focus")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("semester", semester);
+
+    if (focusError) {
+        console.error("Error deleting weekly focus:", focusError);
+        // Non-fatal
+    }
+
+    revalidatePath("/dashboard/grades");
+    revalidatePath("/dashboard/decks");
+    return { success: true };
+}
+
 // --- Goals ---
 
 export async function setSubjectGoal(input: unknown) {
@@ -245,8 +311,17 @@ export async function bulkLogGrades(grades: { subject_name: string, grade_value:
         return { success: false, error: "Failed to save grades." };
     }
 
+    // Auto-create study decks for each subject
+    const { createDecksForSubjects } = await import("@/lib/actions/deck");
+    const uniqueSubjects = [...new Map(grades.map(g =>
+        [`${g.subject_name}-${g.semester}`, { subject_name: g.subject_name, semester: g.semester }]
+    )).values()];
+
+    await createDecksForSubjects(uniqueSubjects, 'grades');
+
     revalidatePath("/dashboard/grades");
-    return { success: true };
+    revalidatePath("/dashboard/decks");
+    return { success: true, decksCreated: uniqueSubjects.length };
 }
 
 export async function bulkSetGoals(goals: { subject_name: string, target_grade: string }[]) {

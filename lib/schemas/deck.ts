@@ -49,6 +49,8 @@ export interface Deck {
     description: string | null;
     is_public: boolean;
     tags: string[];
+    semester: string | null;
+    subject_source: 'manual' | 'grades' | 'goals' | null;
     created_at: string;
     updated_at: string;
 }
