@@ -79,8 +79,7 @@ async function getValidAccessToken(userId: string): Promise<string | null> {
                 console.error("Failed to update access token:", updateError);
             }
 
-            return result.tokens.access_token;
-            return result.tokens.access_token;
+            return result.tokens.access_token ?? null;
         }
 
         return null;
