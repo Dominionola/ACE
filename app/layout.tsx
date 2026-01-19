@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { TimerProvider } from "@/contexts/timer-context";
 import { WorkflowProvider } from "@/contexts/workflow-context";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -37,6 +38,7 @@ export default function RootLayout({
           <WorkflowProvider>
             {children}
             <Toaster />
+            <Analytics />
           </WorkflowProvider>
         </TimerProvider>
       </body>
